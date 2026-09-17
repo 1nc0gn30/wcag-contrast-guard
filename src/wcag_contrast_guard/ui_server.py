@@ -1,50 +1,35 @@
-"""Google WCAG & APCA Contrast Guard Studio Web UI & REST API Server.
+"""WCAG & APCA Contrast Guard Studio Web UI & REST API Server.
 
-Pure Python standard library HTTP server providing:
-- Google Material 3 Studio web application UI.
-- REST API endpoints for contrast auditing, APCA calculations, CVD simulation,
-  automated CIEDE2000 remediation, palette analysis, CSS scanning, and diagnostics.
-- Fallback embedded HTML rendering if static assets are not packaged on disk.
-- Zero external runtime dependencies.
+Provides a multi-threaded pure Python HTTP server hosting:
+- Studio web application UI influenced by Material 3 design.
+- REST API for WCAG 2.2, APCA calculations, colorblindness simulation,
+  auto-remediation, design system palette audits, and CSS scanning.
 """
 
 from __future__ import annotations
 
-import cgi
+import argparse
+import html
 import http.server
 import json
 import mimetypes
 import os
-from pathlib import Path
-import socketserver
 import sys
 import threading
 import time
-from typing import Any, Dict, List, Optional, Tuple, Union
 import urllib.parse
-import webbrowser
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-from wcag_contrast_guard.apca_engine import calculate_apca_lc, evaluate_apca
-from wcag_contrast_guard.catalog import (
-    audit_custom_palette,
-    audit_palette,
-    get_palette,
-    list_palettes,
-)
-from wcag_contrast_guard.color_math import (
-    color_distance,
-    delta_e_ciede2000,
-    parse_color,
-)
-from wcag_contrast_guard.colorblind_sim import (
-    simulate_all_deficiencies,
-    simulate_colorblindness,
-)
-from wcag_contrast_guard.compat import get_platform_info, read_text_safe
+from wcag_contrast_guard.apca_engine import evaluate_apca
+from wcag_contrast_guard.catalog import audit_palette, get_palette, list_palettes
+from wcag_contrast_guard.color_math import Color, delta_e_ciede2000, parse_color
+from wcag_contrast_guard.colorblind_sim import simulate_colorblindness
+from wcag_contrast_guard.compat import get_platform_info, normalize_path as safe_path_normalization
 from wcag_contrast_guard.css_scanner import scan_css_string
-from wcag_contrast_guard.models import Color, ColorblindType
-from wcag_contrast_guard.remediation import remediate_contrast
-from wcag_contrast_guard.wcag_engine import calculate_contrast_ratio, evaluate_wcag
+from wcag_contrast_guard.models import ColorblindType, WCAGLevel
+from wcag_contrast_guard.remediation import suggest_remediation
+from wcag_contrast_guard.wcag_engine import check_contrast
 
 # Default embedded HTML fallback for standalone execution
 EMBEDDED_STUDIO_HTML = """<!DOCTYPE html>
@@ -52,7 +37,7 @@ EMBEDDED_STUDIO_HTML = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google WCAG Contrast Studio | Standalone Fallback</title>
+  <title>WCAG Contrast Studio | Standalone Fallback</title>
   <style>
     :root {
       --primary: #1a73e8;
@@ -79,7 +64,7 @@ EMBEDDED_STUDIO_HTML = """<!DOCTYPE html>
 </head>
 <body>
   <div class="card">
-    <h1>Google WCAG &amp; APCA Contrast Studio</h1>
+    <h1>WCAG &amp; APCA Contrast Studio</h1>
     <div class="row">
       <div class="col">
         <label>Foreground Color</label>

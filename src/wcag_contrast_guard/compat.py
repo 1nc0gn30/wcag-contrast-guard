@@ -110,6 +110,9 @@ def normalize_path(path: Union[str, Path]) -> Path:
         return p.absolute()
 
 
+safe_path_normalization = normalize_path
+
+
 def atomic_write_text(
     path: Union[str, Path],
     content: str,

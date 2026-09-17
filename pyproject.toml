@@ -5,12 +5,12 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "wcag-contrast-guard"
 version = "0.1.0"
-description = "Universal WCAG 2.2 & APCA Perceptual Color Contrast Engine, 8-Deficiency Colorblind Simulator, Automated Delta-E Remediation, MCP Server, and Google Material 3 Studio."
+description = "Universal WCAG 2.2 & APCA Perceptual Color Contrast Engine, 8-Deficiency Colorblind Simulator, Automated Delta-E Remediation, MCP Server, and Contrast Studio (design influenced by Material 3 tokens)."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [
-    { name = "Google WCAG Studio Engineering Team" }
+    { name = "WCAG Contrast Guard Engineering Team" }
 ]
 keywords = [
     "wcag",

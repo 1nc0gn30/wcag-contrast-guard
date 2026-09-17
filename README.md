@@ -1,4 +1,4 @@
-# Google WCAG & APCA Contrast Guard
+# WCAG & APCA Contrast Guard
 
 [![CI](https://github.com/google/wcag-contrast-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/google/wcag-contrast-guard/actions/workflows/ci.yml)
 [![Python 3.9–3.13](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
@@ -8,13 +8,13 @@
 [![APCA 0.98G](https://img.shields.io/badge/APCA-0.98G--4g-blueviolet.svg)](https://www.w3.org/WAI/GL/task-forces/silver/wiki/Visual_Contrast_Subgroup)
 [![MCP Protocol 2024-11-05](https://img.shields.io/badge/MCP-JSON--RPC%202.0-orange.svg)](https://modelcontextprotocol.io/)
 
-> **The Universal Color Accessibility & Perceptual Contrast Engine, 8-Deficiency Colorblind Simulator, CIEDE2000 Auto-Remediation Solver, Model Context Protocol (MCP) Server, and Google Material 3 Studio.**
+> **The Universal Color Accessibility & Perceptual Contrast Engine, 8-Deficiency Colorblind Simulator, CIEDE2000 Auto-Remediation Solver, Model Context Protocol (MCP) Server, and Interactive Contrast Studio (design influenced by Material 3 tokens).**
 
 ---
 
 ## Overview
 
-`wcag-contrast-guard` is a production-grade, zero-external-dependency Python library, CLI, MCP Server, and interactive Google Material 3 Studio web application for computing, auditing, simulating, and remediating color contrast across digital interfaces.
+`wcag-contrast-guard` is a production-grade, zero-external-dependency Python library, CLI, MCP Server, and interactive WCAG Contrast Studio web application (with design influenced by Material 3 tokens) for computing, auditing, simulating, and remediating color contrast across digital interfaces.
 
 It unifies the official **W3C WCAG 2.1 / 2.2** relative luminance specification, the modern **APCA (Advanced Perceptual Contrast Algorithm 0.98G)** for WCAG 3.0 Silver, **Machado 2009 / Brettel 1997 Color Vision Deficiency (CVD)** simulation matrices across 8 conditions, **CIEDE2000 ($\Delta E_{00}$)** perceptual color difference minimization for automated remediation, and native CSS/HTML color pair scanning.
 
@@ -33,7 +33,7 @@ It unifies the official **W3C WCAG 2.1 / 2.2** relative luminance specification,
 │   • FG / BG / Dual Balancing  │   • Automatic Pair Matching  │   • Radix, Carbon, Dracula   │
 ├───────────────────────────────┴──────────────────────────────┴──────────────────────────────┤
 │                                 Interfaces & Deliverables                                   │
-│   [ CLI: wcag-guard ]   •   [ MCP Server: JSON-RPC ]   •   [ Google Material 3 Web Studio ] │
+│   [ CLI: wcag-guard ]   •   [ MCP Server: JSON-RPC ]   •   [ Contrast Guard Web Studio ]    │
 └─────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -59,7 +59,7 @@ It unifies the official **W3C WCAG 2.1 / 2.2** relative luminance specification,
    - Pre-packaged palettes for Google Material 3, Tailwind CSS 3, GitHub Primer, Apple HIG, Radix Colors, IBM Carbon, Dracula, Solarized, Nord, and One Dark.
 7. **Model Context Protocol (MCP) Server**:
    - Native integration with Claude Desktop, Cursor, Cline, and Zed over stdio.
-8. **Google Material 3 Studio Web App**:
+8. **WCAG Contrast Studio Web App** (Design influenced by Material 3 tokens):
    - Interactive dual color picker, real-time ratio badge, WCAG matrix, APCA table, 8-lens CVD viewer, 1-click auto-fix swatch, and CSS auditor.
 
 ---
@@ -170,7 +170,7 @@ wcag-guard palettes
 wcag-guard audit google-material-3
 wcag-guard audit tailwind-css-3 --json
 
-# 7. Launch Google Material 3 Studio Web App
+# 7. Launch WCAG Contrast Studio Web App (Material 3 influenced)
 wcag-guard serve --port 8080
 
 # 8. Diagnostics & Self-Test
@@ -280,4 +280,4 @@ pytest tests/ --cov=wcag_contrast_guard --cov-report=term-missing
 
 ## License
 
-MIT License © 2026 Google WCAG Studio Engineering Team
+MIT License © 2026 WCAG Contrast Guard Engineering Team

@@ -236,3 +236,16 @@ def test_cli_diagnostics():
 def test_cli_test():
     ret = main(["test", "--no-color"])
     assert ret == 0
+
+
+def test_ui_server_and_html():
+    from wcag_contrast_guard.ui_server import StudioHTTPRequestHandler
+    from pathlib import Path
+    
+    # Verify public index.html exists and contains rebranded title
+    public_html = Path(__file__).resolve().parent.parent / "public" / "index.html"
+    assert public_html.exists()
+    content = public_html.read_text(encoding="utf-8")
+    assert "WCAG Contrast Guard" in content
+    assert "influenced by Material 3" in content
+

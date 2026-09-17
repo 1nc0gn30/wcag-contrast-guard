@@ -270,3 +270,7 @@ def find_best_contrast_match(
 
     passing.sort(key=lambda x: x[1])
     return passing[0][0]
+
+
+suggest_remediation = remediate_contrast
+
