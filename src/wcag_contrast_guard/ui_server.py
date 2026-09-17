@@ -233,6 +233,17 @@ class StudioHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             self._handle_api_suggest(fg, bg, ratio, adjust)
             return
 
+        if path == "/api/harmonic-palette":
+            seed = query.get("seed", query.get("seed_color", ["#1a73e8"]))[0]
+            harmony = query.get("harmony", query.get("harmony_type", ["analogous"]))[0]
+            mode = query.get("mode", ["light"])[0]
+            count_str = query.get("count", [None])[0]
+            count = int(count_str) if count_str and count_str.isdigit() else None
+            from .harmonic_palette import generate_harmonic_palette
+            res = generate_harmonic_palette(seed, harmony_type=harmony, mode=mode, count=count)
+            self._send_json(res.to_dict())
+            return
+
         # ---------------------------------------------------------------------
         # Static Assets & Studio UI
         # ---------------------------------------------------------------------
@@ -278,6 +289,17 @@ class StudioHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             ratio = float(body.get("target_ratio") or body.get("ratio") or 4.5)
             adjust = body.get("adjust") or "foreground"
             self._handle_api_suggest(fg, bg, ratio, adjust)
+            return
+
+        if path == "/api/harmonic-palette":
+            seed = body.get("seed_color") or body.get("seed") or "#1a73e8"
+            harmony = body.get("harmony_type") or body.get("harmony") or "analogous"
+            mode = body.get("mode") or "light"
+            count = body.get("count")
+            guarantee = body.get("guarantee_wcag_aa", True)
+            from .harmonic_palette import generate_harmonic_palette
+            res = generate_harmonic_palette(seed, harmony_type=harmony, mode=mode, count=count, guarantee_wcag_aa=guarantee)
+            self._send_json(res.to_dict())
             return
 
         if path == "/api/audit-palette":

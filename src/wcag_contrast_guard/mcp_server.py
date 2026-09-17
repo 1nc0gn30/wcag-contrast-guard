@@ -174,6 +174,42 @@ TOOL_DEFINITIONS = [
             "type": "object",
             "properties": {}
         }
+    },
+    {
+        "name": "wcag_generate_harmonic_palette",
+        "description": "Generate an N-color accessible harmonic palette with full contrast matrix, CSS custom properties, and design tokens.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "seed_color": {
+                    "type": "string",
+                    "description": "Seed or brand anchor color (#hex, rgb, hsl, or CSS name).",
+                    "default": "#1a73e8"
+                },
+                "harmony_type": {
+                    "type": "string",
+                    "enum": ["analogous", "complementary", "split_complementary", "triadic", "tetradic", "monochromatic", "tonal"],
+                    "description": "Color harmony relationship.",
+                    "default": "analogous"
+                },
+                "mode": {
+                    "type": "string",
+                    "enum": ["light", "dark", "auto"],
+                    "description": "Theme mode.",
+                    "default": "light"
+                },
+                "count": {
+                    "type": "integer",
+                    "description": "Optional specific number of colors (default: 10 semantic roles)."
+                },
+                "guarantee_wcag_aa": {
+                    "type": "boolean",
+                    "description": "Whether to mathematically solve contrast for WCAG AA compliance.",
+                    "default": True
+                }
+            },
+            "required": ["seed_color"]
+        }
     }
 ]
 
@@ -272,6 +308,17 @@ def _tool_diagnostics(args: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _tool_generate_harmonic_palette(args: Dict[str, Any]) -> Dict[str, Any]:
+    from .harmonic_palette import generate_harmonic_palette
+    seed = args.get("seed_color", "#1a73e8")
+    harmony = args.get("harmony_type", "analogous")
+    mode = args.get("mode", "light")
+    count = args.get("count")
+    guarantee = args.get("guarantee_wcag_aa", True)
+    res = generate_harmonic_palette(seed, harmony_type=harmony, mode=mode, count=count, guarantee_wcag_aa=guarantee)
+    return res.to_dict()
+
+
 TOOL_HANDLERS = {
     "wcag_check_contrast": _tool_check_contrast,
     "wcag_apca_contrast": _tool_apca,
@@ -281,6 +328,7 @@ TOOL_HANDLERS = {
     "wcag_scan_css": _tool_scan_css,
     "wcag_list_palettes": _tool_list_palettes,
     "wcag_diagnostics": _tool_diagnostics,
+    "wcag_generate_harmonic_palette": _tool_generate_harmonic_palette,
 }
 
 

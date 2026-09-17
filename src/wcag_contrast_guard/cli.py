@@ -222,6 +222,49 @@ def cmd_audit(args: argparse.Namespace, color_ok: bool) -> int:
     return 0
 
 
+def cmd_harmonic(args: argparse.Namespace, color_ok: bool) -> int:
+    try:
+        from .harmonic_palette import generate_harmonic_palette
+        seed = getattr(args, "seed", None) or "#1a73e8"
+        res = generate_harmonic_palette(
+            seed_color=seed,
+            harmony_type=getattr(args, "harmony", "analogous"),
+            mode=getattr(args, "mode", "light"),
+            count=getattr(args, "count", None),
+            guarantee_wcag_aa=not getattr(args, "no_guarantee", False),
+        )
+    except Exception as exc:
+        sys.stderr.write(colorize(f"Error generating harmonic palette: {exc}\n", AnsiColor.RED, color_ok))
+        return 1
+
+    if getattr(args, "json", False):
+        print(json.dumps(res.to_dict(), indent=2))
+        return 0
+
+    if getattr(args, "css", False):
+        print(res.css_variables)
+        return 0
+
+    if getattr(args, "svg", None):
+        from .compat import atomic_write_text
+        atomic_write_text(args.svg, res.svg_palette)
+        print(f"Saved SVG swatch sheet to: {args.svg}")
+        return 0
+
+    print(f"\n● Accessible Harmonic Palette Matrix")
+    print(f"  Seed Color:      {colorize(res.seed_color.hex, AnsiColor.BOLD + AnsiColor.CYAN, color_ok)}")
+    print(f"  Harmony Type:    {res.harmony_type.title()}")
+    print(f"  Mode:            {res.mode.title()}")
+    print(f"  Total Colors:    {len(res.colors)}")
+    print(f"  Matrix Cells:    {res.total_matrix_cells} ({res.compliant_aa_cells} AA compliant)")
+    print(f"  Guaranteed AA:   {'YES' if res.guaranteed_compliant else 'NO'}\n")
+    print("  Color Roles:")
+    for role, col in res.colors.items():
+        print(f"    • {role:16s} : {col.hex.upper()} (lum: {col.luminance:.4f})")
+    print()
+    return 0
+
+
 def cmd_serve(args: argparse.Namespace, color_ok: bool) -> int:
     port = getattr(args, "port", 8080)
     print(colorize(f"Starting Google WCAG Studio Web UI on port {port}...", AnsiColor.CYAN, color_ok))
@@ -276,6 +319,10 @@ def cmd_test(args: argparse.Namespace, color_ok: bool) -> int:
     assert apca.abs_lc >= 100.0, "APCA Black on white must be >= 100 Lc"
     sims = simulate_all_deficiencies("#1a73e8", "#ffffff")
     assert len(sims) == 8, "Must simulate 8 deficiencies"
+    from .harmonic_palette import generate_harmonic_palette
+    pal = generate_harmonic_palette("#1a73e8", harmony_type="analogous", mode="light")
+    assert len(pal.colors) >= 5, "Harmonic palette must have >= 5 colors"
+    assert pal.guaranteed_compliant is True, "Harmonic palette must be compliant"
     print(colorize("✔ All internal checks passed!", AnsiColor.BRIGHT_GREEN, color_ok))
     return 0
 
@@ -299,6 +346,17 @@ def build_parser() -> argparse.ArgumentParser:
     p_check.add_argument("foreground", help="Foreground color (#hex, rgb, hsl, name)")
     p_check.add_argument("background", help="Background color (#hex, rgb, hsl, name)")
     p_check.add_argument("--json", action="store_true", help="Output JSON format")
+
+    # 1b. harmonic / matrix / palette
+    p_harm = subparsers.add_parser("harmonic", aliases=["palette", "matrix"], parents=[parent_parser], help="Generate accessible N-color harmonic palette matrix")
+    p_harm.add_argument("seed", nargs="?", default="#1a73e8", help="Seed or brand anchor color (default: #1a73e8)")
+    p_harm.add_argument("--harmony", default="analogous", choices=["analogous", "complementary", "split_complementary", "triadic", "tetradic", "monochromatic", "tonal"], help="Color harmony scheme")
+    p_harm.add_argument("--mode", default="light", choices=["light", "dark", "auto"], help="Theme mode")
+    p_harm.add_argument("--count", type=int, default=None, help="Specific number of colors (default: 10 semantic roles)")
+    p_harm.add_argument("--no-guarantee", action="store_true", help="Disable automatic contrast solving")
+    p_harm.add_argument("--css", action="store_true", help="Output CSS custom properties")
+    p_harm.add_argument("--svg", help="Save visual SVG swatch and matrix sheet to file")
+    p_harm.add_argument("--json", action="store_true", help="Output JSON format")
 
     # 2. apca
     p_apca = subparsers.add_parser("apca", parents=[parent_parser], help="Calculate APCA perceptual lightness contrast")
@@ -367,6 +425,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     subcmd = getattr(args, "subcommand", None)
     if subcmd == "check":
         return cmd_check(args, color_ok)
+    elif subcmd in ("harmonic", "palette", "matrix"):
+        return cmd_harmonic(args, color_ok)
     elif subcmd == "apca":
         return cmd_apca(args, color_ok)
     elif subcmd == "simulate":

@@ -28,6 +28,8 @@ from wcag_contrast_guard.models import (
     PaletteAuditReport,
     RemediationSuggestion,
     TriadHarmonyResult,
+    ContrastMatrixCell,
+    HarmonicPaletteResult,
     WCAGLevel,
     WCAGResult,
 )
@@ -84,6 +86,16 @@ from wcag_contrast_guard.remediation import (
     remediate_contrast,
     solve_accessible_triad,
     suggest_accessible_palette,
+)
+
+# Harmonic Palette Generator
+from wcag_contrast_guard.harmonic_palette import (
+    build_contrast_matrix,
+    export_palette_css,
+    export_palette_design_tokens,
+    export_palette_svg,
+    export_palette_tailwind,
+    generate_harmonic_palette,
 )
 
 # Catalog & Palettes
@@ -227,6 +239,8 @@ __all__ = [
     "PaletteAuditReport",
     "GradientContrastReport",
     "TriadHarmonyResult",
+    "ContrastMatrixCell",
+    "HarmonicPaletteResult",
     "PlatformInfo",
     "CSSRule",
     "CSSColorPair",
@@ -253,6 +267,12 @@ __all__ = [
     "suggest_remediation",
     "suggest_accessible_palette",
     "solve_accessible_triad",
+    "generate_harmonic_palette",
+    "build_contrast_matrix",
+    "export_palette_css",
+    "export_palette_tailwind",
+    "export_palette_design_tokens",
+    "export_palette_svg",
     "find_best_contrast_match",
     "color_distance",
     "delta_e_ciede2000",

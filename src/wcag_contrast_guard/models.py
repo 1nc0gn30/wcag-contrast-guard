@@ -462,3 +462,63 @@ class TriadHarmonyResult:
             "is_accessible": self.is_accessible,
         }
 
+
+@dataclass
+class ContrastMatrixCell:
+    """Single comparison cell in an N x N contrast ratio matrix."""
+
+    color1_name: str
+    color2_name: str
+    color1_hex: str
+    color2_hex: str
+    ratio: float
+    aa_normal_pass: bool
+    aa_large_pass: bool
+    aaa_normal_pass: bool
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "color1_name": self.color1_name,
+            "color2_name": self.color2_name,
+            "color1_hex": self.color1_hex,
+            "color2_hex": self.color2_hex,
+            "ratio": round(self.ratio, 2),
+            "aa_normal_pass": self.aa_normal_pass,
+            "aa_large_pass": self.aa_large_pass,
+            "aaa_normal_pass": self.aaa_normal_pass,
+        }
+
+
+@dataclass
+class HarmonicPaletteResult:
+    """Result of generating an N-color accessible harmonic palette with full contrast matrix."""
+
+    seed_color: Color
+    harmony_type: str
+    mode: str
+    colors: Dict[str, Color]
+    matrix: List[List[ContrastMatrixCell]]
+    guaranteed_compliant: bool
+    total_matrix_cells: int
+    compliant_aa_cells: int
+    css_variables: str
+    tailwind_config: str
+    design_tokens_json: str
+    svg_palette: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "seed_color": self.seed_color.to_dict(),
+            "harmony_type": self.harmony_type,
+            "mode": self.mode,
+            "colors": {k: v.to_dict() for k, v in self.colors.items()},
+            "matrix": [[cell.to_dict() for cell in row] for row in self.matrix],
+            "guaranteed_compliant": self.guaranteed_compliant,
+            "total_matrix_cells": self.total_matrix_cells,
+            "compliant_aa_cells": self.compliant_aa_cells,
+            "css_variables": self.css_variables,
+            "tailwind_config": self.tailwind_config,
+            "design_tokens_json": self.design_tokens_json,
+            "svg_palette": self.svg_palette,
+        }
+
