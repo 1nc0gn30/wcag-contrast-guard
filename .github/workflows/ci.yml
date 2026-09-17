@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, "releases/**"]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest pytest-cov
+          python -m pip install -e .
+
+      - name: Run Test Suite with Pytest
+        run: |
+          python -m pytest tests/ -v --color=yes
+
+      - name: Verify CLI Entry Points and Subcommands
+        run: |
+          wcag-guard --version
+          wcag-guard check "#FFFFFF" "#000000" --json
+          wcag-guard apca "#FFFFFF" "#1A73E8" --json
+          wcag-guard simulate "#EA4335" "#34A853" --json
+          wcag-guard suggest "#777777" "#FFFFFF" --target-ratio 4.5 --json
+          wcag-guard palettes
+          wcag-guard diagnostics

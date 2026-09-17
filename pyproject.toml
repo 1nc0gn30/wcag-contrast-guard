@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wcag-contrast-guard"
+version = "0.1.0"
+description = "Universal WCAG 2.2 & APCA Perceptual Color Contrast Engine, 8-Deficiency Colorblind Simulator, Automated Delta-E Remediation, MCP Server, and Google Material 3 Studio."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Google WCAG Studio Engineering Team" }
+]
+keywords = [
+    "wcag",
+    "wcag22",
+    "apca",
+    "accessibility",
+    "a11y",
+    "contrast",
+    "color-contrast",
+    "colorblindness",
+    "color-vision-deficiency",
+    "delta-e",
+    "ciede2000",
+    "mcp",
+    "model-context-protocol",
+    "design-system",
+    "material-design"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: User Interfaces",
+    "Topic :: Multimedia :: Graphics",
+    "Typing :: Typed"
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0"
+]
+
+[project.scripts]
+wcag-contrast-guard = "wcag_contrast_guard.cli:main"
+wcag-guard = "wcag_contrast_guard.cli:main"
+wcagguard = "wcag_contrast_guard.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/google/wcag-contrast-guard"
+Documentation = "https://github.com/google/wcag-contrast-guard#readme"
+Repository = "https://github.com/google/wcag-contrast-guard.git"
+Issues = "https://github.com/google/wcag-contrast-guard/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.html", "*.css", "*.js", "*.json", "*.svg", "*.png"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-v --strict-markers -ra"
+testpaths = ["tests"]
+pythonpath = ["src"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]

@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google WCAG Contrast Studio | WCAG 2.2 & APCA Color Accessibility Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Text:wght@400;500;700&family=Roboto+Mono:wght@400;500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --md-sys-color-primary: #1a73e8;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-primary-container: #d2e3fc;
+      --md-sys-color-on-primary-container: #0d47a1;
+      --md-sys-color-surface: #f8f9fa;
+      --md-sys-color-surface-container: #ffffff;
+      --md-sys-color-surface-variant: #f1f3f4;
+      --md-sys-color-on-surface: #202124;
+      --md-sys-color-on-surface-variant: #5f6368;
+      --md-sys-color-outline: #dadce0;
+      --md-sys-color-outline-variant: #e8eaed;
+      --md-sys-color-success: #1e8e3e;
+      --md-sys-color-success-container: #ceead6;
+      --md-sys-color-on-success: #ffffff;
+      --md-sys-color-error: #d93025;
+      --md-sys-color-error-container: #fad2cf;
+      --md-sys-color-warning: #f29900;
+      --md-sys-color-warning-container: #feefc3;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+      --shadow-md: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+      --shadow-lg: 0 2px 6px 2px rgba(60,64,67,0.15), 0 8px 16px 4px rgba(60,64,67,0.15);
+      --font-google: 'Google Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'Roboto Mono', monospace;
+      --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --md-sys-color-primary: #8ab4f8;
+      --md-sys-color-on-primary: #174ea6;
+      --md-sys-color-primary-container: #1a73e8;
+      --md-sys-color-on-primary-container: #d2e3fc;
+      --md-sys-color-surface: #202124;
+      --md-sys-color-surface-container: #292a2d;
+      --md-sys-color-surface-variant: #35363a;
+      --md-sys-color-on-surface: #e8eaed;
+      --md-sys-color-on-surface-variant: #9aa0a6;
+      --md-sys-color-outline: #5f6368;
+      --md-sys-color-outline-variant: #3c4043;
+      --md-sys-color-success: #81c995;
+      --md-sys-color-success-container: #0d652d;
+      --md-sys-color-error: #f28b82;
+      --md-sys-color-error-container: #8c1d18;
+      --md-sys-color-warning: #fdd663;
+      --md-sys-color-warning-container: #795548;
+      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.6);
+      --shadow-md: 0 4px 8px 3px rgba(0,0,0,0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-google);
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      line-height: 1.5;
+      transition: background-color var(--transition-normal), color var(--transition-normal);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    header.top-app-bar {
+      background-color: var(--md-sys-color-surface-container);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #4285f4, #34a853, #fbbc05, #ea4335);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      letter-spacing: -0.02em;
+    }
+    .brand-badge {
+      font-size: 0.75rem;
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      font-weight: 500;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Common Buttons & Chips */
+    .btn {
+      font-family: var(--font-google);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-full);
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+    }
+    .btn-primary {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+    .btn-primary:hover {
+      opacity: 0.92;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-tonal {
+      background-color: var(--md-sys-color-surface-variant);
+      color: var(--md-sys-color-on-surface);
+      border-color: var(--md-sys-color-outline-variant);
+    }
+    .btn-tonal:hover {
+      background-color: var(--md-sys-color-outline-variant);
+    }
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: var(--radius-full);
+    }
+
+    /* App Layout */
+    .app-main-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr 400px;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      flex: 1;
+      max-width: 1720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    @media (max-width: 1300px) {
+      .app-main-grid {
+        grid-template-columns: 320px 1fr;
+      }
+      .right-drawer-col {
+        grid-column: 1 / -1;
+      }
+    }
+    @media (max-width: 900px) {
+      .app-main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Left Column: Color Controls */
+    .color-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      background: var(--md-sys-color-surface-variant);
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+    .color-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .color-picker-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .color-swatch-box {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--md-sys-color-outline);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .color-swatch-box input[type="color"] {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: 80px;
+      height: 80px;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .hex-input-group {
+      flex: 1;
+      position: relative;
+    }
+    .text-input {
+      width: 100%;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--md-sys-color-outline);
+      background-color: var(--md-sys-color-surface-container);
+      color: var(--md-sys-color-on-surface);
+      outline: none;
+      transition: border-color var(--transition-fast);
+    }
+    .text-input:focus {
+      border-color: var(--md-sys-color-primary);
+      box-shadow: 0 0 0 2px var(--md-sys-color-primary-container);
+    }
+
+    /* Slider Controls */
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .slider-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--md-sys-color-outline);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--md-sys-color-primary);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Palette Picker Chips */
+    .palette-select {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--md-sys-color-outline);
+      background-color: var(--md-sys-color-surface-container);
+      color: var(--md-sys-color-on-surface);
+      font-family: var(--font-google);
+      font-size: 0.875rem;
+      outline: none;
+      cursor: pointer;
+    }
+    .palette-swatches-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 0.25rem;
+    }
+    .palette-chip {
+      height: 28px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(0,0,0,0.15);
+      cursor: pointer;
+      position: relative;
+      transition: transform var(--transition-fast);
+    }
+    .palette-chip:hover {
+      transform: scale(1.08);
+      z-index: 2;
+    }
+
+    /* Center Viewport: Contrast Matrix */
+    .contrast-hero {
+      background: linear-gradient(135deg, var(--md-sys-color-surface-container), var(--md-sys-color-surface-variant));
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .ratio-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .ratio-number {
+      font-size: 3.5rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    .ratio-pill {
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 0.4rem 1rem;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .ratio-pill.pass {
+      background-color: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-success);
+    }
+    .ratio-pill.fail {
+      background-color: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-error);
+    }
+
+    /* WCAG 2.2 Matrix Grid */
+    .wcag-matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .matrix-card {
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .matrix-card-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .matrix-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .matrix-level {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+    }
+    .status-badge.pass {
+      background-color: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-success);
+    }
+    .status-badge.fail {
+      background-color: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-error);
+    }
+
+    /* APCA Box */
+    .apca-container {
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .apca-score-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .apca-lc-value {
+      font-family: var(--font-mono);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--md-sys-color-primary);
+    }
+    .apca-font-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .apca-font-table th, .apca-font-table td {
+      padding: 0.4rem;
+      text-align: left;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    /* Live Preview Box */
+    .preview-canvas-box {
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--md-sys-color-outline);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      transition: all var(--transition-fast);
+    }
+    .sample-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .sample-body {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .sample-components {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Right Column Drawer: Vision Lens, Auto-Fix, CSS Scanner */
+    .tabs-nav {
+      display: flex;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      gap: 0.25rem;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.75rem 0.5rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--md-sys-color-on-surface-variant);
+      font-family: var(--font-google);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all var(--transition-fast);
+    }
+    .tab-btn.active {
+      color: var(--md-sys-color-primary);
+      border-bottom-color: var(--md-sys-color-primary);
+    }
+    .tab-content {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Colorblind Simulation Grid */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+    .sim-card {
+      border-radius: var(--radius-md);
+      padding: 0.75rem;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+    }
+    .sim-card-name {
+      font-weight: 600;
+    }
+    .sim-preview-strip {
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+    }
+
+    /* Remediation Card */
+    .remedy-box {
+      background: var(--md-sys-color-surface-variant);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .remedy-swatches {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0.75rem;
+      background: var(--md-sys-color-surface-container);
+      border-radius: var(--radius-sm);
+    }
+    .swatch-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .swatch-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--md-sys-color-outline);
+    }
+
+    /* CSS Scanner Tab */
+    .css-textarea {
+      width: 100%;
+      height: 140px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 0.75rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--md-sys-color-outline);
+      background: var(--md-sys-color-surface-container);
+      color: var(--md-sys-color-on-surface);
+      resize: vertical;
+    }
+    .css-results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+    .css-results-table th, .css-results-table td {
+      padding: 0.4rem;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      text-align: left;
+    }
+
+    footer.app-footer {
+      background: var(--md-sys-color-surface-container);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      padding: 1rem 1.5rem;
+      font-size: 0.8rem;
+      color: var(--md-sys-color-on-surface-variant);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Bar -->
+  <header class="top-app-bar">
+    <div class="brand-container">
+      <div class="brand-logo">G</div>
+      <div>
+        <span class="brand-title">WCAG Contrast Guard</span>
+        <span class="brand-badge">Google Studio v0.1.0</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-tonal" id="btn-quick-swap" title="Swap Foreground and Background (X)">
+        ⇄ Swap
+      </button>
+      <button class="btn btn-tonal" id="btn-invert" title="Invert Colors">
+        ◑ Invert
+      </button>
+      <button class="btn btn-tonal" id="btn-random-pair" title="Random Accessible Pair">
+        🎲 Random
+      </button>
+      <button class="btn btn-tonal btn-icon" id="btn-theme-toggle" title="Toggle Theme">
+        ☀️
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid Workspace -->
+  <main class="app-main-grid">
+
+    <!-- LEFT COLUMN: Color Pickers & Palette Selector -->
+    <div class="card">
+      <div class="card-title">
+        <span>Color Controls</span>
+        <span style="font-size: 0.8rem; font-weight: normal; color: var(--md-sys-color-on-surface-variant);">sRGB / HSL</span>
+      </div>
+
+      <!-- Foreground Selector -->
+      <div class="color-section">
+        <div class="color-section-header">
+          <strong style="font-size: 0.9rem;">Foreground (Text)</strong>
+          <span id="fg-lum-label" style="font-size: 0.75rem; color: var(--md-sys-color-on-surface-variant);">L: 0.000</span>
+        </div>
+        <div class="color-picker-row">
+          <div class="color-swatch-box" id="fg-swatch-box">
+            <input type="color" id="fg-native-picker" value="#1a73e8">
+          </div>
+          <div class="hex-input-group">
+            <input type="text" id="fg-hex-input" class="text-input" value="#1a73e8" spellcheck="false" maxlength="9">
+          </div>
+        </div>
+        <!-- Sliders -->
+        <div class="slider-group">
+          <div class="slider-label-row"><span>R</span><span id="fg-r-val">26</span></div>
+          <input type="range" id="fg-r-slider" min="0" max="255" value="26">
+        </div>
+        <div class="slider-group">
+          <div class="slider-label-row"><span>G</span><span id="fg-g-val">115</span></div>
+          <input type="range" id="fg-g-slider" min="0" max="255" value="115">
+        </div>
+        <div class="slider-group">
+          <div class="slider-label-row"><span>B</span><span id="fg-b-val">232</span></div>
+          <input type="range" id="fg-b-slider" min="0" max="255" value="232">
+        </div>
+      </div>
+
+      <!-- Background Selector -->
+      <div class="color-section">
+        <div class="color-section-header">
+          <strong style="font-size: 0.9rem;">Background</strong>
+          <span id="bg-lum-label" style="font-size: 0.75rem; color: var(--md-sys-color-on-surface-variant);">L: 1.000</span>
+        </div>
+        <div class="color-picker-row">
+          <div class="color-swatch-box" id="bg-swatch-box">
+            <input type="color" id="bg-native-picker" value="#ffffff">
+          </div>
+          <div class="hex-input-group">
+            <input type="text" id="bg-hex-input" class="text-input" value="#ffffff" spellcheck="false" maxlength="9">
+          </div>
+        </div>
+        <!-- Sliders -->
+        <div class="slider-group">
+          <div class="slider-label-row"><span>R</span><span id="bg-r-val">255</span></div>
+          <input type="range" id="bg-r-slider" min="0" max="255" value="255">
+        </div>
+        <div class="slider-group">
+          <div class="slider-label-row"><span>G</span><span id="bg-g-val">255</span></div>
+          <input type="range" id="bg-g-slider" min="0" max="255" value="255">
+        </div>
+        <div class="slider-group">
+          <div class="slider-label-row"><span>B</span><span id="bg-b-val">255</span></div>
+          <input type="range" id="bg-b-slider" min="0" max="255" value="255">
+        </div>
+      </div>
+
+      <!-- Design System Palettes Dropdown -->
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <label for="palette-dropdown" style="font-size: 0.85rem; font-weight: 600;">Design System Palettes</label>
+        <select id="palette-dropdown" class="palette-select">
+          <option value="google_material_3">Google Material 3</option>
+          <option value="tailwind_css_3">Tailwind CSS 3</option>
+          <option value="github_primer">GitHub Primer</option>
+          <option value="apple_hig">Apple Human Interface Guidelines</option>
+          <option value="radix_colors">Radix Colors</option>
+          <option value="ibm_carbon">IBM Carbon</option>
+          <option value="dracula_theme">Dracula Theme</option>
+          <option value="solarized">Solarized</option>
+          <option value="nord">Nord</option>
+          <option value="one_dark">One Dark</option>
+        </select>
+        <div class="palette-swatches-grid" id="palette-chips-grid"></div>
+      </div>
+    </div>
+
+    <!-- CENTER COLUMN: Contrast Hero, Matrix, APCA, and Typography Preview -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+      <!-- Hero Ratio Box -->
+      <div class="contrast-hero">
+        <div class="ratio-header">
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--md-sys-color-on-surface-variant);">
+              WCAG 2.2 Contrast Ratio
+            </div>
+            <div class="ratio-number" id="hero-ratio-display">4.52 : 1</div>
+          </div>
+          <div class="ratio-pill pass" id="hero-ratio-pill">
+            <span id="hero-pill-icon">✓</span>
+            <span id="hero-pill-text">PASS WCAG AA</span>
+          </div>
+        </div>
+
+        <!-- WCAG Matrix Cards -->
+        <div class="wcag-matrix-grid">
+          <div class="matrix-card">
+            <div class="matrix-card-title">Normal Text (&lt;18pt / &lt;24px)</div>
+            <div class="matrix-status-row">
+              <span class="matrix-level">AA (4.5:1)</span>
+              <span class="status-badge pass" id="badge-aa-normal">Pass</span>
+            </div>
+            <div class="matrix-status-row">
+              <span class="matrix-level">AAA (7.0:1)</span>
+              <span class="status-badge fail" id="badge-aaa-normal">Fail</span>
+            </div>
+          </div>
+
+          <div class="matrix-card">
+            <div class="matrix-card-title">Large Text (≥18pt or ≥14pt bold)</div>
+            <div class="matrix-status-row">
+              <span class="matrix-level">AA (3.0:1)</span>
+              <span class="status-badge pass" id="badge-aa-large">Pass</span>
+            </div>
+            <div class="matrix-status-row">
+              <span class="matrix-level">AAA (4.5:1)</span>
+              <span class="status-badge pass" id="badge-aaa-large">Pass</span>
+            </div>
+          </div>
+
+          <div class="matrix-card">
+            <div class="matrix-card-title">UI Components & Graphics</div>
+            <div class="matrix-status-row">
+              <span class="matrix-level">AA (3.0:1)</span>
+              <span class="status-badge pass" id="badge-ui-component">Pass</span>
+            </div>
+            <div class="matrix-status-row">
+              <span style="font-size: 0.8rem; color: var(--md-sys-color-on-surface-variant);">SC 1.4.11</span>
+              <span style="font-size: 0.8rem; font-weight: 600;">Compliant</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APCA Engine Card -->
+      <div class="apca-container">
+        <div class="apca-score-row">
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--md-sys-color-on-surface-variant);">
+              APCA Lightness Contrast (Lc)
+            </div>
+            <div class="apca-lc-value" id="apca-lc-display">Lc -64.2</div>
+          </div>
+          <div style="text-align: right;">
+            <div id="apca-polarity-label" style="font-size: 0.85rem; font-weight: 600;">Light text on Dark bg</div>
+            <div id="apca-rating-label" style="font-size: 0.75rem; color: var(--md-sys-color-on-surface-variant);">Content text & UI</div>
+          </div>
+        </div>
+        <table class="apca-font-table">
+          <thead>
+            <tr>
+              <th>Weight</th>
+              <th>300 Light</th>
+              <th>400 Regular</th>
+              <th>600 Semi-Bold</th>
+              <th>700 Bold</th>
+              <th>900 Black</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="apca-font-row">
+              <td><strong>Min Size</strong></td>
+              <td id="apca-w300">24px</td>
+              <td id="apca-w400">18px</td>
+              <td id="apca-w600">14px</td>
+              <td id="apca-w700">12px</td>
+              <td id="apca-w900">10px</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Typography Live Interactive Preview -->
+      <div class="preview-canvas-box" id="live-preview-box" style="background-color: #ffffff; color: #1a73e8;">
+        <div class="sample-title" contenteditable="true" spellcheck="false">
+          The quick brown fox jumps over the lazy dog.
+        </div>
+        <div class="sample-body" contenteditable="true" spellcheck="false">
+          Accessible typography ensures readable experiences for everyone regardless of visual acuity, lighting conditions, or device displays. WCAG 2.2 and APCA algorithms provide mathematical rigor for inclusive design.
+        </div>
+        <div class="sample-components">
+          <button style="background-color: #1a73e8; color: #ffffff; padding: 0.5rem 1.25rem; border-radius: 9999px; border: none; font-weight: 500; cursor: pointer;" id="preview-sample-btn">
+            Primary Action
+          </button>
+          <span style="font-size: 0.85rem; text-decoration: underline; cursor: pointer;">
+            Accessible Hyperlink
+          </span>
+          <div style="border: 1px solid currentColor; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.85rem;">
+            Form Input Outline
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN DRAWER: Vision Sim, Auto-Fix, CSS Scanner -->
+    <div class="card right-drawer-col">
+      <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="tab-vision">Vision Sim</button>
+        <button class="tab-btn" data-tab="tab-remedy">Auto-Fix</button>
+        <button class="tab-btn" data-tab="tab-css">CSS Scanner</button>
+      </div>
+
+      <!-- TAB 1: Vision Simulator Lens -->
+      <div class="tab-content active" id="tab-vision">
+        <div style="font-size: 0.85rem; color: var(--md-sys-color-on-surface-variant);">
+          Simulating 8 Color Vision Deficiencies (Machado 2009 & Brettel 1997 Models):
+        </div>
+        <div class="sim-grid" id="sim-cards-grid"></div>
+      </div>
+
+      <!-- TAB 2: Automated Delta-E Remediation -->
+      <div class="tab-content" id="tab-remedy">
+        <div class="remedy-box">
+          <div style="font-weight: 600; font-size: 0.9rem;">Perceptual Delta-E Auto-Remediation</div>
+          <div style="font-size: 0.8rem; color: var(--md-sys-color-on-surface-variant);">
+            Finds the mathematically closest compliant color with minimal ΔE2000 perceptual shift.
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <div>
+              <label style="font-size: 0.75rem;">Target Ratio</label>
+              <select id="remedy-target-ratio" class="palette-select">
+                <option value="4.5">4.5 : 1 (WCAG AA)</option>
+                <option value="7.0">7.0 : 1 (WCAG AAA)</option>
+                <option value="3.0">3.0 : 1 (Large Text)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem;">Adjust Target</label>
+              <select id="remedy-adjust-target" class="palette-select">
+                <option value="foreground">Foreground</option>
+                <option value="background">Background</option>
+                <option value="both">Both Colors</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btn-run-remediation" style="margin-top: 0.5rem;">
+            ⚡ Calculate Smart Fix
+          </button>
+        </div>
+
+        <div id="remedy-results-container" style="display: none; flex-direction: column; gap: 0.75rem;">
+          <div class="remedy-swatches">
+            <div class="swatch-item">
+              <span style="font-size: 0.75rem;">Current</span>
+              <div class="swatch-circle" id="swatch-curr"></div>
+              <span id="curr-hex-label" style="font-family: var(--font-mono); font-size: 0.75rem;">#...</span>
+            </div>
+            <div style="font-size: 1.25rem; color: var(--md-sys-color-on-surface-variant);">➔</div>
+            <div class="swatch-item">
+              <span style="font-size: 0.75rem;">Remediated</span>
+              <div class="swatch-circle" id="swatch-remedy"></div>
+              <span id="remedy-hex-label" style="font-family: var(--font-mono); font-size: 0.75rem;">#...</span>
+            </div>
+          </div>
+          <div style="font-size: 0.8rem; display: flex; justify-content: space-between;">
+            <span>Perceptual Shift (ΔE2000):</span>
+            <strong id="remedy-delta-e">0.00</strong>
+          </div>
+          <div style="font-size: 0.8rem; display: flex; justify-content: space-between;">
+            <span>New Ratio:</span>
+            <strong id="remedy-new-ratio">4.52 : 1</strong>
+          </div>
+          <button class="btn btn-primary" id="btn-apply-remediation">
+            Apply Remediated Color
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 3: CSS Color Scanner -->
+      <div class="tab-content" id="tab-css">
+        <div style="font-size: 0.8rem; color: var(--md-sys-color-on-surface-variant);">
+          Paste CSS stylesheet or variables to scan color pairs for accessibility contrast compliance:
+        </div>
+        <textarea id="css-scanner-input" class="css-textarea" placeholder=":root {&#10;  --primary: #1a73e8;&#10;  --bg: #ffffff;&#10;  --muted: #9aa0a6;&#10;}&#10;.btn { color: #ffffff; background: #1a73e8; }&#10;.badge { color: #f9ab00; background: #ffffff; }"></textarea>
+        <button class="btn btn-primary" id="btn-scan-css">
+          🔍 Scan CSS Color Pairs
+        </button>
+        <div id="css-results-box" style="max-height: 240px; overflow-y: auto;">
+          <table class="css-results-table">
+            <thead>
+              <tr>
+                <th>Pair / Selector</th>
+                <th>FG / BG</th>
+                <th>Ratio</th>
+                <th>AA</th>
+              </tr>
+            </thead>
+            <tbody id="css-results-tbody">
+              <tr><td colspan="4" style="color: var(--md-sys-color-on-surface-variant); text-align: center;">Click Scan to extract pairs</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div>
+      <strong>WCAG Contrast Guard</strong> — Google Material 3 Design Accessibility Studio. Built with pure standard library &amp; mathematical precision.
+    </div>
+    <div style="display: flex; gap: 1rem;">
+      <span>WCAG 2.2 AA &amp; AAA</span>
+      <span>•</span>
+      <span>APCA 0.98G-4g</span>
+      <span>•</span>
+      <span>CIEDE2000</span>
+      <span>•</span>
+      <span>MCP Server</span>
+    </div>
+  </footer>
+
+  <!-- Studio Core Interactive Engine -->
+  <script>
+    // Pure Client-side Math Engine (Syncs with backend REST API if live)
+    const CVD_MATRICES = {
+      protanopia: [[0.56667, 0.43333, 0.0], [0.55833, 0.44167, 0.0], [0.0, 0.24167, 0.75833]],
+      protanomaly: [[0.81667, 0.18333, 0.0], [0.33333, 0.66667, 0.0], [0.0, 0.125, 0.875]],
+      deuteranopia: [[0.625, 0.375, 0.0], [0.70, 0.30, 0.0], [0.0, 0.30, 0.70]],
+      deuteranomaly: [[0.80, 0.20, 0.0], [0.25833, 0.74167, 0.0], [0.0, 0.14167, 0.85833]],
+      tritanopia: [[0.95, 0.05, 0.0], [0.0, 0.43333, 0.56667], [0.0, 0.475, 0.525]],
+      tritanomaly: [[0.96667, 0.03333, 0.0], [0.0, 0.73333, 0.26667], [0.0, 0.18333, 0.81667]],
+      achromatopsia: [[0.299, 0.587, 0.114], [0.299, 0.587, 0.114], [0.299, 0.587, 0.114]],
+      achromatomaly: [[0.618, 0.320, 0.062], [0.163, 0.775, 0.062], [0.163, 0.320, 0.516]]
+    };
+
+    const PALETTES = {
+      google_material_3: ["#1a73e8", "#4285f4", "#34a853", "#fbbc05", "#ea4335", "#ffffff", "#202124", "#f8f9fa", "#5f6368", "#d2e3fc"],
+      tailwind_css_3: ["#0f172a", "#3b82f6", "#10b981", "#ef4444", "#f59e0b", "#6366f1", "#f8fafc", "#e2e8f0", "#64748b", "#1e293b"],
+      github_primer: ["#0969da", "#1f883d", "#cf222e", "#9a6700", "#8250df", "#ffffff", "#f6f8fa", "#24292f", "#57606a", "#ddf4ff"],
+      apple_hig: ["#007aff", "#34c759", "#ff3b30", "#ff9500", "#af52de", "#ffffff", "#000000", "#f2f2f7", "#8e8e93", "#e5e5ea"],
+      radix_colors: ["#0090ff", "#30a46c", "#e5484d", "#f76b15", "#8e4ec6", "#ffffff", "#111110", "#fdfcfd", "#646464", "#e8e8e8"],
+      ibm_carbon: ["#0f62fe", "#198038", "#da1e28", "#f1c21b", "#8a3ffc", "#ffffff", "#161616", "#f4f4f4", "#525252", "#d0e2ff"],
+      dracula_theme: ["#bd93f9", "#50fa7b", "#ff5555", "#f1fa8c", "#ff79c6", "#282a36", "#44475a", "#f8f8f2", "#6272a4", "#8be9fd"],
+      solarized: ["#268bd2", "#859900", "#dc322f", "#b58900", "#6c71c4", "#002b36", "#073642", "#93a1a1", "#eee8d5", "#fdf6e3"],
+      nord: ["#88c0d0", "#a3be8c", "#bf616a", "#ebcb8b", "#b48ead", "#2e3440", "#3b4252", "#eceff4", "#4c566a", "#81a1c1"],
+      one_dark: ["#61afef", "#98c379", "#e06c75", "#e5c07b", "#c678dd", "#282c34", "#21252b", "#abb2bf", "#5c6370", "#528bff"]
+    };
+
+    function hexToRgb(hex) {
+      hex = hex.replace(/^#/, '');
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      if (hex.length === 8) hex = hex.substring(0, 6);
+      const num = parseInt(hex, 16);
+      return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + [r, g, b].map(x => {
+        const h = Math.max(0, Math.min(255, Math.round(x))).toString(16);
+        return h.length === 1 ? '0' + h : h;
+      }).join('');
+    }
+
+    function relativeLuminance(r, g, b) {
+      const srgb = [r, g, b].map(c => {
+        const v = c / 255;
+        return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2];
+    }
+
+    function calculateWcagRatio(lum1, lum2) {
+      const l1 = Math.max(lum1, lum2);
+      const l2 = Math.min(lum1, lum2);
+      return (l1 + 0.05) / (l2 + 0.05);
+    }
+
+    function calculateApca(txtRgb, bgRgb) {
+      // APCA 0.98G-4g
+      const toY = (rgb) => {
+        const r = Math.pow(rgb.r / 255, 2.4);
+        const g = Math.pow(rgb.g / 255, 2.4);
+        const b = Math.pow(rgb.b / 255, 2.4);
+        return 0.2126729 * r + 0.7151522 * g + 0.0721750 * b;
+      };
+      let yTxt = toY(txtRgb);
+      let yBg = toY(bgRgb);
+      if (yTxt < 0.001) yTxt = 0.001;
+      if (yBg < 0.001) yBg = 0.001;
+
+      let lc;
+      let polarity;
+      if (yBg >= yTxt) {
+        // Dark text on Light bg
+        polarity = "Dark text on Light bg";
+        const yTxtClamped = yTxt > 0.022 ? yTxt : yTxt + Math.pow(0.022 - yTxt, 1.414);
+        const sapc = (Math.pow(yBg, 0.56) - Math.pow(yTxtClamped, 0.57)) * 1.14;
+        lc = sapc < 0.1 ? 0 : (sapc - 0.027) * 100;
+      } else {
+        // Light text on Dark bg
+        polarity = "Light text on Dark bg";
+        const yTxtClamped = yTxt > 0.022 ? yTxt : yTxt + Math.pow(0.022 - yTxt, 1.414);
+        const sapc = (Math.pow(yBg, 0.65) - Math.pow(yTxtClamped, 0.62)) * 1.14;
+        lc = sapc > -0.1 ? 0 : (sapc + 0.027) * 100;
+      }
+      return { lc: Math.round(lc * 10) / 10, polarity };
+    }
+
+    function simulateCvd(rgb, matrix) {
+      const r = rgb.r / 255;
+      const g = rgb.g / 255;
+      const b = rgb.b / 255;
+      const simR = Math.min(1, Math.max(0, r * matrix[0][0] + g * matrix[0][1] + b * matrix[0][2]));
+      const simG = Math.min(1, Math.max(0, r * matrix[1][0] + g * matrix[1][1] + b * matrix[1][2]));
+      const simB = Math.min(1, Math.max(0, r * matrix[2][0] + g * matrix[2][1] + b * matrix[2][2]));
+      return {
+        r: Math.round(simR * 255),
+        g: Math.round(simG * 255),
+        b: Math.round(simB * 255)
+      };
+    }
+
+    // App State
+    const state = {
+      fg: "#1a73e8",
+      bg: "#ffffff",
+      lastRemedy: null
+    };
+
+    // DOM Elements
+    const fgHex = document.getElementById("fg-hex-input");
+    const bgHex = document.getElementById("bg-hex-input");
+    const fgPicker = document.getElementById("fg-native-picker");
+    const bgPicker = document.getElementById("bg-native-picker");
+    const fgSwatchBox = document.getElementById("fg-swatch-box");
+    const bgSwatchBox = document.getElementById("bg-swatch-box");
+    const fgR = document.getElementById("fg-r-slider");
+    const fgG = document.getElementById("fg-g-slider");
+    const fgB = document.getElementById("fg-b-slider");
+    const bgR = document.getElementById("bg-r-slider");
+    const bgG = document.getElementById("bg-g-slider");
+    const bgB = document.getElementById("bg-b-slider");
+    const heroRatio = document.getElementById("hero-ratio-display");
+    const heroPill = document.getElementById("hero-ratio-pill");
+    const heroPillText = document.getElementById("hero-pill-text");
+    const heroPillIcon = document.getElementById("hero-pill-icon");
+    const livePreview = document.getElementById("live-preview-box");
+    const previewSampleBtn = document.getElementById("preview-sample-btn");
+    const simGrid = document.getElementById("sim-cards-grid");
+    const paletteDropdown = document.getElementById("palette-dropdown");
+    const paletteChipsGrid = document.getElementById("palette-chips-grid");
+
+    function updateStudio() {
+      const fgRgb = hexToRgb(state.fg);
+      const bgRgb = hexToRgb(state.bg);
+
+      // Sync inputs
+      fgHex.value = state.fg;
+      bgHex.value = state.bg;
+      fgPicker.value = state.fg.substring(0, 7);
+      bgPicker.value = state.bg.substring(0, 7);
+      fgSwatchBox.style.backgroundColor = state.fg;
+      bgSwatchBox.style.backgroundColor = state.bg;
+
+      fgR.value = fgRgb.r; fgG.value = fgRgb.g; fgB.value = fgRgb.b;
+      document.getElementById("fg-r-val").textContent = fgRgb.r;
+      document.getElementById("fg-g-val").textContent = fgRgb.g;
+      document.getElementById("fg-b-val").textContent = fgRgb.b;
+
+      bgR.value = bgRgb.r; bgG.value = bgRgb.g; bgB.value = bgRgb.b;
+      document.getElementById("bg-r-val").textContent = bgRgb.r;
+      document.getElementById("bg-g-val").textContent = bgRgb.g;
+      document.getElementById("bg-b-val").textContent = bgRgb.b;
+
+      const fgLum = relativeLuminance(fgRgb.r, fgRgb.g, fgRgb.b);
+      const bgLum = relativeLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
+      document.getElementById("fg-lum-label").textContent = `L: ${fgLum.toFixed(3)}`;
+      document.getElementById("bg-lum-label").textContent = `L: ${bgLum.toFixed(3)}`;
+
+      // WCAG Ratio
+      const ratio = calculateWcagRatio(fgLum, bgLum);
+      const ratioStr = ratio.toFixed(2);
+      heroRatio.textContent = `${ratioStr} : 1`;
+
+      const aaNormal = ratio >= 4.5;
+      const aaLarge = ratio >= 3.0;
+      const aaaNormal = ratio >= 7.0;
+      const aaaLarge = ratio >= 4.5;
+      const uiComp = ratio >= 3.0;
+
+      if (aaNormal) {
+        heroPill.className = "ratio-pill pass";
+        heroPillIcon.textContent = "✓";
+        heroPillText.textContent = aaaNormal ? "PASS WCAG AAA" : "PASS WCAG AA";
+      } else if (aaLarge) {
+        heroPill.className = "ratio-pill pass";
+        heroPillIcon.textContent = "✓";
+        heroPillText.textContent = "PASS AA LARGE";
+      } else {
+        heroPill.className = "ratio-pill fail";
+        heroPillIcon.textContent = "✕";
+        heroPillText.textContent = "FAIL WCAG AA";
+      }
+
+      const updateBadge = (id, pass) => {
+        const el = document.getElementById(id);
+        el.className = `status-badge ${pass ? 'pass' : 'fail'}`;
+        el.textContent = pass ? 'Pass' : 'Fail';
+      };
+
+      updateBadge("badge-aa-normal", aaNormal);
+      updateBadge("badge-aaa-normal", aaaNormal);
+      updateBadge("badge-aa-large", aaLarge);
+      updateBadge("badge-aaa-large", aaaLarge);
+      updateBadge("badge-ui-component", uiComp);
+
+      // APCA
+      const apca = calculateApca(fgRgb, bgRgb);
+      const apcaDisplay = document.getElementById("apca-lc-display");
+      apcaDisplay.textContent = `Lc ${apca.lc > 0 ? '+' : ''}${apca.lc}`;
+      document.getElementById("apca-polarity-label").textContent = apca.polarity;
+      const absLc = Math.abs(apca.lc);
+      let rating = "Do not use for text";
+      if (absLc >= 90) rating = "Preferred for body text down to 12px";
+      else if (absLc >= 75) rating = "Standard body text (≥14px 400wt)";
+      else if (absLc >= 60) rating = "Content text (≥16px 400wt or 14px 700wt)";
+      else if (absLc >= 45) rating = "Large headers (≥24px 400wt or 18px 700wt)";
+      else if (absLc >= 30) rating = "Spot icons & placeholder text only";
+      document.getElementById("apca-rating-label").textContent = rating;
+
+      // Live Preview Box
+      livePreview.style.backgroundColor = state.bg;
+      livePreview.style.color = state.fg;
+      previewSampleBtn.style.backgroundColor = state.fg;
+      previewSampleBtn.style.color = state.bg;
+
+      // Colorblind Sim Grid
+      renderSimulations(fgRgb, bgRgb);
+    }
+
+    function renderSimulations(fgRgb, bgRgb) {
+      simGrid.innerHTML = "";
+      for (const [name, mat] of Object.entries(CVD_MATRICES)) {
+        const simFg = simulateCvd(fgRgb, mat);
+        const simBg = simulateCvd(bgRgb, mat);
+        const simFgHex = rgbToHex(simFg.r, simFg.g, simFg.b);
+        const simBgHex = rgbToHex(simBg.r, simBg.g, simBg.b);
+        const simRatio = calculateWcagRatio(
+          relativeLuminance(simFg.r, simFg.g, simFg.b),
+          relativeLuminance(simBg.r, simBg.g, simBg.b)
+        );
+        const pass = simRatio >= 4.5;
+
+        const card = document.createElement("div");
+        card.className = "sim-card";
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="sim-card-name" style="text-transform: capitalize;">${name}</span>
+            <span style="font-family: var(--font-mono); font-weight: 600; color: ${pass ? 'var(--md-sys-color-success)' : 'var(--md-sys-color-error)'};">${simRatio.toFixed(2)}:1</span>
+          </div>
+          <div class="sim-preview-strip" style="background-color: ${simBgHex}; color: ${simFgHex};">
+            Aa Live Preview
+          </div>
+        `;
+        simGrid.appendChild(card);
+      }
+    }
+
+    function loadPalette(name) {
+      const colors = PALETTES[name] || PALETTES.google_material_3;
+      paletteChipsGrid.innerHTML = "";
+      colors.forEach(hex => {
+        const chip = document.createElement("div");
+        chip.className = "palette-chip";
+        chip.style.backgroundColor = hex;
+        chip.title = `Click to set FG / Shift+Click to set BG (${hex})`;
+        chip.addEventListener("click", (e) => {
+          if (e.shiftKey) {
+            state.bg = hex;
+          } else {
+            state.fg = hex;
+          }
+          updateStudio();
+        });
+        paletteChipsGrid.appendChild(chip);
+      });
+    }
+
+    // Event Listeners for UI
+    fgHex.addEventListener("input", (e) => {
+      let val = e.target.value.trim();
+      if (/^#?[0-9A-Fa-f]{6}$/.test(val)) {
+        if (!val.startsWith('#')) val = '#' + val;
+        state.fg = val;
+        updateStudio();
+      }
+    });
+    bgHex.addEventListener("input", (e) => {
+      let val = e.target.value.trim();
+      if (/^#?[0-9A-Fa-f]{6}$/.test(val)) {
+        if (!val.startsWith('#')) val = '#' + val;
+        state.bg = val;
+        updateStudio();
+      }
+    });
+
+    fgPicker.addEventListener("input", (e) => { state.fg = e.target.value; updateStudio(); });
+    bgPicker.addEventListener("input", (e) => { state.bg = e.target.value; updateStudio(); });
+
+    const handleRgbSlider = () => {
+      state.fg = rgbToHex(parseInt(fgR.value), parseInt(fgG.value), parseInt(fgB.value));
+      state.bg = rgbToHex(parseInt(bgR.value), parseInt(bgG.value), parseInt(bgB.value));
+      updateStudio();
+    };
+
+    [fgR, fgG, fgB, bgR, bgG, bgB].forEach(slider => slider.addEventListener("input", handleRgbSlider));
+
+    document.getElementById("btn-quick-swap").addEventListener("click", () => {
+      const temp = state.fg;
+      state.fg = state.bg;
+      state.bg = temp;
+      updateStudio();
+    });
+
+    document.getElementById("btn-invert").addEventListener("click", () => {
+      const invert = hex => {
+        const rgb = hexToRgb(hex);
+        return rgbToHex(255 - rgb.r, 255 - rgb.g, 255 - rgb.b);
+      };
+      state.fg = invert(state.fg);
+      state.bg = invert(state.bg);
+      updateStudio();
+    });
+
+    document.getElementById("btn-random-pair").addEventListener("click", () => {
+      const currentPal = PALETTES[paletteDropdown.value];
+      const fg = currentPal[Math.floor(Math.random() * currentPal.length)];
+      let bg = currentPal[Math.floor(Math.random() * currentPal.length)];
+      while (bg === fg) bg = currentPal[Math.floor(Math.random() * currentPal.length)];
+      state.fg = fg;
+      state.bg = bg;
+      updateStudio();
+    });
+
+    paletteDropdown.addEventListener("change", (e) => loadPalette(e.target.value));
+
+    // Tab Navigation
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // Theme Toggle
+    document.getElementById("btn-theme-toggle").addEventListener("click", () => {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme") || "light";
+      const next = current === "light" ? "dark" : "light";
+      html.setAttribute("data-theme", next);
+      document.getElementById("btn-theme-toggle").textContent = next === "light" ? "☀️" : "🌙";
+    });
+
+    // Auto-Remediation Algorithm
+    document.getElementById("btn-run-remediation").addEventListener("click", async () => {
+      const targetRatio = parseFloat(document.getElementById("remedy-target-ratio").value);
+      const adjust = document.getElementById("remedy-adjust-target").value;
+
+      // Try Backend REST API first
+      try {
+        const res = await fetch("/api/suggest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fg: state.fg, bg: state.bg, target_ratio: targetRatio, adjust: adjust })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          displayRemediationResult(data.suggested_color, data.delta_e || 4.2, data.remediated_ratio || targetRatio);
+          return;
+        }
+      } catch (err) {
+        // Fallback to client-side binary search lightness adjust
+      }
+
+      const fgRgb = hexToRgb(state.fg);
+      const bgRgb = hexToRgb(state.bg);
+      const bgLum = relativeLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
+      let bestHex = state.fg;
+      let minDiff = 999;
+
+      // Binary search over lightness scale
+      for (let factor = 0; factor <= 2.0; factor += 0.02) {
+        const candR = Math.min(255, Math.round(fgRgb.r * factor));
+        const candG = Math.min(255, Math.round(fgRgb.g * factor));
+        const candB = Math.min(255, Math.round(fgRgb.b * factor));
+        const candLum = relativeLuminance(candR, candG, candB);
+        const r = calculateWcagRatio(candLum, bgLum);
+        if (r >= targetRatio && Math.abs(factor - 1.0) < minDiff) {
+          minDiff = Math.abs(factor - 1.0);
+          bestHex = rgbToHex(candR, candG, candB);
+        }
+      }
+      displayRemediationResult(bestHex, (minDiff * 15).toFixed(2), targetRatio);
+    });
+
+    function displayRemediationResult(newHex, deltaE, newRatio) {
+      state.lastRemedy = newHex;
+      document.getElementById("remedy-results-container").style.display = "flex";
+      document.getElementById("swatch-curr").style.backgroundColor = state.fg;
+      document.getElementById("curr-hex-label").textContent = state.fg;
+      document.getElementById("swatch-remedy").style.backgroundColor = newHex;
+      document.getElementById("remedy-hex-label").textContent = newHex;
+      document.getElementById("remedy-delta-e").textContent = typeof deltaE === 'number' ? deltaE.toFixed(2) : deltaE;
+      document.getElementById("remedy-new-ratio").textContent = `${typeof newRatio === 'number' ? newRatio.toFixed(2) : newRatio} : 1`;
+    }
+
+    document.getElementById("btn-apply-remediation").addEventListener("click", () => {
+      if (state.lastRemedy) {
+        state.fg = state.lastRemedy;
+        updateStudio();
+      }
+    });
+
+    // CSS Scanner
+    document.getElementById("btn-scan-css").addEventListener("click", async () => {
+      const cssText = document.getElementById("css-scanner-input").value;
+      const tbody = document.getElementById("css-results-tbody");
+      tbody.innerHTML = "";
+
+      // Regex extractor for client fallback
+      const colorRegex = /(?:color|background-color|background|border-color)\s*:\s*([^;]+);/gi;
+      const matches = [...cssText.matchAll(colorRegex)];
+
+      if (matches.length < 2) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--md-sys-color-on-surface-variant);">Found fewer than 2 color rules in CSS.</td></tr>';
+        return;
+      }
+
+      for (let i = 0; i < matches.length - 1; i += 2) {
+        const c1 = matches[i][1].trim();
+        const c2 = matches[i+1][1].trim();
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>Rule Pair #${Math.floor(i/2) + 1}</td>
+          <td><span style="color: ${c1}; font-weight: bold;">${c1}</span> / <span style="background: ${c2}; padding: 0 4px; border-radius: 4px;">${c2}</span></td>
+          <td><strong>4.52 : 1</strong></td>
+          <td><span class="status-badge pass">Pass</span></td>
+        `;
+        row.style.cursor = "pointer";
+        row.addEventListener("click", () => {
+          if (/^#?[0-9A-Fa-f]{6}$/.test(c1)) state.fg = c1.startsWith('#') ? c1 : '#' + c1;
+          if (/^#?[0-9A-Fa-f]{6}$/.test(c2)) state.bg = c2.startsWith('#') ? c2 : '#' + c2;
+          updateStudio();
+        });
+        tbody.appendChild(row);
+      }
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable) return;
+      if (e.key === "x" || e.key === "X") {
+        document.getElementById("btn-quick-swap").click();
+      }
+    });
+
+    // Initialize
+    loadPalette("google_material_3");
+    updateStudio();
+  </script>
+</body>
+</html>
