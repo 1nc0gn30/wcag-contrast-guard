@@ -17,7 +17,7 @@ from wcag_contrast_guard.color_math import (
     parse_color,
     rgb_to_lab,
 )
-from wcag_contrast_guard.models import Color, RemediationSuggestion
+from wcag_contrast_guard.models import Color, RemediationSuggestion, TriadHarmonyResult
 from wcag_contrast_guard.wcag_engine import calculate_contrast_ratio
 
 
@@ -273,4 +273,80 @@ def find_best_contrast_match(
 
 
 suggest_remediation = remediate_contrast
+
+
+def solve_accessible_triad(
+    base_color: Union[str, Color],
+    mode: str = "light",
+    target_text_ratio: float = 4.5,
+    target_accent_ratio: float = 3.0,
+) -> TriadHarmonyResult:
+    """Solve an accessible tri-color palette (Background, Foreground, Accent) anchored to base_color.
+
+    Ensures foreground achieves target_text_ratio against background, and accent achieves
+    target_accent_ratio (WCAG 1.4.11 UI component) against background with aesthetic hue harmony.
+
+    Args:
+        base_color: Seed or brand color representation.
+        mode: Theme mode ('light', 'dark', or 'auto').
+        target_text_ratio: Required contrast for body text against background (default 4.5:1).
+        target_accent_ratio: Required contrast for accent against background (default 3.0:1).
+
+    Returns:
+        TriadHarmonyResult: Solved background, foreground, and accent with verified contrast ratios.
+    """
+    base = parse_color(base_color) if not isinstance(base_color, Color) else base_color
+
+    if mode == "auto":
+        is_dark_bg = base.luminance < 0.2
+    else:
+        is_dark_bg = mode.lower().startswith("dark")
+
+    if is_dark_bg:
+        bg = Color(
+            r=max(15, int(base.r * 0.12)),
+            g=max(15, int(base.g * 0.12)),
+            b=max(20, int(base.b * 0.15)),
+        )
+        fg_candidate = Color(r=245, g=245, b=247)
+        accent_suggestion = remediate_contrast(
+            base, bg, target_ratio=target_accent_ratio, adjust="foreground"
+        )
+        accent = accent_suggestion.suggested_color
+    else:
+        bg = Color(r=255, g=255, b=255)
+        fg_candidate = Color(
+            r=min(30, int(base.r * 0.15)),
+            g=min(30, int(base.g * 0.15)),
+            b=min(35, int(base.b * 0.2)),
+        )
+        accent_suggestion = remediate_contrast(
+            base, bg, target_ratio=target_accent_ratio, adjust="foreground"
+        )
+        accent = accent_suggestion.suggested_color
+
+    if calculate_contrast_ratio(fg_candidate, bg) < target_text_ratio:
+        fg_suggestion = remediate_contrast(
+            fg_candidate, bg, target_ratio=target_text_ratio, adjust="foreground"
+        )
+        fg = fg_suggestion.suggested_color
+    else:
+        fg = fg_candidate
+
+    fg_bg_ratio = calculate_contrast_ratio(fg, bg)
+    accent_bg_ratio = calculate_contrast_ratio(accent, bg)
+    accent_fg_ratio = calculate_contrast_ratio(accent, fg)
+
+    is_accessible = (fg_bg_ratio >= target_text_ratio) and (accent_bg_ratio >= target_accent_ratio)
+
+    return TriadHarmonyResult(
+        background=bg,
+        foreground=fg,
+        accent=accent,
+        fg_bg_ratio=fg_bg_ratio,
+        accent_bg_ratio=accent_bg_ratio,
+        accent_fg_ratio=accent_fg_ratio,
+        is_accessible=is_accessible,
+    )
+
 

@@ -384,3 +384,81 @@ class PaletteAuditReport:
             "recommendations": self.recommendations,
             "pair_evaluations": self.pair_evaluations,
         }
+
+
+@dataclass
+class GradientContrastReport:
+    """Report on text contrast readability across a CSS gradient background.
+
+    Attributes:
+        fg: Evaluated foreground color.
+        stops: Evaluated gradient stop colors.
+        min_ratio: Minimum contrast ratio across all sampled points (worst case).
+        max_ratio: Maximum contrast ratio across sampled points.
+        avg_ratio: Mean contrast ratio across all sampled points.
+        worst_stop_index: Index of the sampled stop with the lowest contrast.
+        aa_normal_pass: True if worst-case min_ratio >= 4.5.
+        aa_large_pass: True if worst-case min_ratio >= 3.0.
+        aaa_normal_pass: True if worst-case min_ratio >= 7.0.
+        sample_ratios: List of contrast ratios at each sampled interval.
+    """
+
+    fg: Color
+    stops: List[Color]
+    min_ratio: float
+    max_ratio: float
+    avg_ratio: float
+    worst_stop_index: int
+    aa_normal_pass: bool
+    aa_large_pass: bool
+    aaa_normal_pass: bool
+    sample_ratios: List[float] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "fg": self.fg.to_dict(),
+            "stops": [s.to_dict() for s in self.stops],
+            "min_ratio": round(self.min_ratio, 2),
+            "max_ratio": round(self.max_ratio, 2),
+            "avg_ratio": round(self.avg_ratio, 2),
+            "worst_stop_index": self.worst_stop_index,
+            "aa_normal_pass": self.aa_normal_pass,
+            "aa_large_pass": self.aa_large_pass,
+            "aaa_normal_pass": self.aaa_normal_pass,
+            "sample_ratios": [round(r, 2) for r in self.sample_ratios],
+        }
+
+
+@dataclass
+class TriadHarmonyResult:
+    """Accessible tri-color palette solution (Background, Foreground, Accent).
+
+    Attributes:
+        background: Solved background color.
+        foreground: Solved foreground body text color.
+        accent: Solved interactive/accent UI component color.
+        fg_bg_ratio: Contrast ratio between foreground and background.
+        accent_bg_ratio: Contrast ratio between accent and background.
+        accent_fg_ratio: Contrast ratio between accent and foreground.
+        is_accessible: True if all accessibility requirements are met.
+    """
+
+    background: Color
+    foreground: Color
+    accent: Color
+    fg_bg_ratio: float
+    accent_bg_ratio: float
+    accent_fg_ratio: float
+    is_accessible: bool
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "background": self.background.to_dict(),
+            "foreground": self.foreground.to_dict(),
+            "accent": self.accent.to_dict(),
+            "fg_bg_ratio": round(self.fg_bg_ratio, 2),
+            "accent_bg_ratio": round(self.accent_bg_ratio, 2),
+            "accent_fg_ratio": round(self.accent_fg_ratio, 2),
+            "is_accessible": self.is_accessible,
+        }
+

@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import List, Optional, Union
 
 from wcag_contrast_guard.color_math import blend_alpha, get_relative_luminance, parse_color
-from wcag_contrast_guard.models import Color, WCAGLevel, WCAGResult
+from wcag_contrast_guard.models import Color, GradientContrastReport, WCAGLevel, WCAGResult
 
 
 def calculate_contrast_ratio(
@@ -203,3 +203,70 @@ def check_contrast(
 
     result = evaluate_wcag(fg, bg)
     return result.passes(level_enum)
+
+
+def evaluate_gradient_contrast(
+    fg: Union[str, Color],
+    gradient_stops: List[Union[str, Color]],
+    sample_count: int = 11,
+) -> GradientContrastReport:
+    """Evaluate foreground text contrast readability across a CSS gradient background.
+
+    Samples linear interpolation across gradient stops at evenly spaced intervals,
+    calculating contrast ratio at each step to determine worst-case, best-case, and
+    average contrast across the entire visual gradient surface.
+
+    Args:
+        fg: Foreground text color.
+        gradient_stops: List of 2 or more gradient stop colors.
+        sample_count: Number of points to sample across the gradient (default: 11).
+
+    Returns:
+        GradientContrastReport: Comprehensive report with min/max/avg ratios and compliance.
+    """
+    if len(gradient_stops) < 2:
+        raise ValueError("Gradient must contain at least 2 stop colors.")
+
+    fg_col = parse_color(fg) if not isinstance(fg, Color) else fg
+    stops = [parse_color(s) if not isinstance(s, Color) else s for s in gradient_stops]
+
+    sample_count = max(2, sample_count)
+    sample_ratios: List[float] = []
+
+    m = len(stops)
+    for i in range(sample_count):
+        t = i / (sample_count - 1)
+        pos = t * (m - 1)
+        idx = min(int(pos), m - 2)
+        tau = pos - idx
+
+        s0 = stops[idx]
+        s1 = stops[idx + 1]
+
+        r_interp = int(round(s0.r * (1.0 - tau) + s1.r * tau))
+        g_interp = int(round(s0.g * (1.0 - tau) + s1.g * tau))
+        b_interp = int(round(s0.b * (1.0 - tau) + s1.b * tau))
+        a_interp = s0.a * (1.0 - tau) + s1.a * tau
+
+        sampled_bg = Color(r=r_interp, g=g_interp, b=b_interp, a=a_interp)
+        ratio = calculate_contrast_ratio(fg_col, sampled_bg)
+        sample_ratios.append(ratio)
+
+    min_ratio = min(sample_ratios)
+    max_ratio = max(sample_ratios)
+    avg_ratio = sum(sample_ratios) / len(sample_ratios)
+    worst_index = sample_ratios.index(min_ratio)
+
+    return GradientContrastReport(
+        fg=fg_col,
+        stops=stops,
+        min_ratio=round(min_ratio, 2),
+        max_ratio=round(max_ratio, 2),
+        avg_ratio=round(avg_ratio, 2),
+        worst_stop_index=worst_index,
+        aa_normal_pass=min_ratio >= 4.5,
+        aa_large_pass=min_ratio >= 3.0,
+        aaa_normal_pass=min_ratio >= 7.0,
+        sample_ratios=sample_ratios,
+    )
+

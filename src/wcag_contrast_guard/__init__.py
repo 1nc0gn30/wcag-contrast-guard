@@ -24,8 +24,10 @@ from wcag_contrast_guard.models import (
     Color,
     ColorblindSimulationResult,
     ColorblindType,
+    GradientContrastReport,
     PaletteAuditReport,
     RemediationSuggestion,
+    TriadHarmonyResult,
     WCAGLevel,
     WCAGResult,
 )
@@ -55,6 +57,7 @@ from wcag_contrast_guard.color_math import (
 from wcag_contrast_guard.wcag_engine import (
     calculate_contrast_ratio,
     check_contrast,
+    evaluate_gradient_contrast,
     evaluate_wcag,
     get_wcag_levels_passed,
     is_aa_compliant,
@@ -79,6 +82,7 @@ from wcag_contrast_guard.colorblind_sim import (
 from wcag_contrast_guard.remediation import (
     find_best_contrast_match,
     remediate_contrast,
+    solve_accessible_triad,
     suggest_accessible_palette,
 )
 
@@ -221,6 +225,8 @@ __all__ = [
     "ColorblindSimulationResult",
     "RemediationSuggestion",
     "PaletteAuditReport",
+    "GradientContrastReport",
+    "TriadHarmonyResult",
     "PlatformInfo",
     "CSSRule",
     "CSSColorPair",
@@ -230,6 +236,7 @@ __all__ = [
     "get_relative_luminance",
     "calculate_contrast_ratio",
     "evaluate_wcag",
+    "evaluate_gradient_contrast",
     "check_contrast",
     "is_aa_compliant",
     "is_aaa_compliant",
@@ -245,6 +252,7 @@ __all__ = [
     "remediate_contrast",
     "suggest_remediation",
     "suggest_accessible_palette",
+    "solve_accessible_triad",
     "find_best_contrast_match",
     "color_distance",
     "delta_e_ciede2000",
