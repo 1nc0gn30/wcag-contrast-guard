@@ -210,6 +210,115 @@ TOOL_DEFINITIONS = [
             },
             "required": ["seed_color"]
         }
+    },
+    {
+        "name": "wcag_evaluate_focus_appearance",
+        "description": "Evaluate keyboard focus indicator contrast (>= 3:1 / 4.5:1) and minimum perimeter area per WCAG 2.2 SC 2.4.11 / 2.4.13.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "element_width": {
+                    "type": "number",
+                    "description": "Width of unfocused component in CSS pixels.",
+                    "default": 120
+                },
+                "element_height": {
+                    "type": "number",
+                    "description": "Height of unfocused component in CSS pixels.",
+                    "default": 40
+                },
+                "focus_color": {
+                    "type": "string",
+                    "description": "Color of the focus ring / indicator (hex, rgb, hsl)."
+                },
+                "background_color": {
+                    "type": "string",
+                    "description": "Adjacent background color behind the focused component."
+                },
+                "unfocused_color": {
+                    "type": "string",
+                    "description": "Optional resting unfocused color of the component."
+                },
+                "indicator_thickness": {
+                    "type": "number",
+                    "description": "Indicator thickness / outline-width in CSS pixels.",
+                    "default": 2.0
+                },
+                "style": {
+                    "type": "string",
+                    "enum": ["outline", "box-shadow", "border", "background-fill"],
+                    "description": "Focus indicator presentation style.",
+                    "default": "outline"
+                },
+                "offset": {
+                    "type": "number",
+                    "description": "Outline offset in CSS pixels.",
+                    "default": 0.0
+                }
+            },
+            "required": ["focus_color", "background_color"]
+        }
+    },
+    {
+        "name": "wcag_evaluate_target_size",
+        "description": "Evaluate pointer/touch target size against WCAG 2.2 SC 2.5.8 (>= 24x24px or spacing offset) and SC 2.5.5 (>= 44x44px).",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "width_px": {
+                    "type": "number",
+                    "description": "Target bounding box width in CSS pixels."
+                },
+                "height_px": {
+                    "type": "number",
+                    "description": "Target bounding box height in CSS pixels."
+                },
+                "spacing_x_px": {
+                    "type": "number",
+                    "description": "Edge-to-edge spacing to nearest horizontal interactive target in CSS pixels.",
+                    "default": 0.0
+                },
+                "spacing_y_px": {
+                    "type": "number",
+                    "description": "Edge-to-edge spacing to nearest vertical interactive target in CSS pixels.",
+                    "default": 0.0
+                },
+                "is_inline": {
+                    "type": "boolean",
+                    "description": "Whether the target is inline within a block of text (exempt from SC 2.5.8).",
+                    "default": False
+                },
+                "is_essential": {
+                    "type": "boolean",
+                    "description": "Whether specific target size is essential to the function (exempt from SC 2.5.8).",
+                    "default": False
+                }
+            },
+            "required": ["width_px", "height_px"]
+        }
+    },
+    {
+        "name": "wcag_solve_scrim_overlay",
+        "description": "Solve for the minimum scrim opacity and optimal overlay color to guarantee WCAG contrast for text over variable images/backdrops.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "text_color": {
+                    "type": "string",
+                    "description": "Foreground text color to ensure contrast for."
+                },
+                "target_contrast": {
+                    "type": "number",
+                    "description": "Target contrast ratio (4.5 for AA normal text, 3.0 for large text, 7.0 for AAA).",
+                    "default": 4.5
+                },
+                "scrim_base_color": {
+                    "type": "string",
+                    "description": "Optional scrim tint color (e.g. '#000000', '#ffffff', or brand hue)."
+                }
+            },
+            "required": ["text_color"]
+        }
     }
 ]
 
@@ -319,6 +428,45 @@ def _tool_generate_harmonic_palette(args: Dict[str, Any]) -> Dict[str, Any]:
     return res.to_dict()
 
 
+def _tool_focus_appearance(args: Dict[str, Any]) -> Dict[str, Any]:
+    from .focus_and_target_evaluator import FocusAppearanceSpec, evaluate_focus_appearance
+    spec = FocusAppearanceSpec(
+        element_width=float(args.get("element_width", 120)),
+        element_height=float(args.get("element_height", 40)),
+        focus_color=args.get("focus_color", "#1a73e8"),
+        background_color=args.get("background_color", "#ffffff"),
+        unfocused_color=args.get("unfocused_color"),
+        indicator_thickness=float(args.get("indicator_thickness", 2.0)),
+        style=args.get("style", "outline"),
+        offset=float(args.get("offset", 0.0)),
+    )
+    res = evaluate_focus_appearance(spec)
+    return res.to_dict()
+
+
+def _tool_target_size(args: Dict[str, Any]) -> Dict[str, Any]:
+    from .focus_and_target_evaluator import TargetSizeSpec, evaluate_target_size
+    spec = TargetSizeSpec(
+        width_px=float(args.get("width_px", 24)),
+        height_px=float(args.get("height_px", 24)),
+        spacing_x_px=float(args.get("spacing_x_px", 0.0)),
+        spacing_y_px=float(args.get("spacing_y_px", 0.0)),
+        is_inline=bool(args.get("is_inline", False)),
+        is_essential=bool(args.get("is_essential", False)),
+    )
+    res = evaluate_target_size(spec)
+    return res.to_dict()
+
+
+def _tool_scrim_overlay(args: Dict[str, Any]) -> Dict[str, Any]:
+    from .scrim_and_overlay_solver import solve_scrim
+    txt = args.get("text_color", "#ffffff")
+    target_ratio = float(args.get("target_contrast", 4.5))
+    scrim_base = args.get("scrim_base_color")
+    res = solve_scrim(text_color=txt, target_contrast=target_ratio, scrim_base_color=scrim_base)
+    return res.to_dict()
+
+
 TOOL_HANDLERS = {
     "wcag_check_contrast": _tool_check_contrast,
     "wcag_apca_contrast": _tool_apca,
@@ -329,6 +477,9 @@ TOOL_HANDLERS = {
     "wcag_list_palettes": _tool_list_palettes,
     "wcag_diagnostics": _tool_diagnostics,
     "wcag_generate_harmonic_palette": _tool_generate_harmonic_palette,
+    "wcag_evaluate_focus_appearance": _tool_focus_appearance,
+    "wcag_evaluate_target_size": _tool_target_size,
+    "wcag_solve_scrim_overlay": _tool_scrim_overlay,
 }
 
 

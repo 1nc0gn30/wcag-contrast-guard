@@ -244,6 +244,35 @@ class StudioHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             self._send_json(res.to_dict())
             return
 
+        if path == "/api/focus":
+            from .focus_and_target_evaluator import FocusAppearanceSpec, evaluate_focus_appearance
+            f_col = query.get("focus", query.get("focus_color", ["#1a73e8"]))[0]
+            b_col = query.get("bg", query.get("background_color", ["#ffffff"]))[0]
+            unfoc = query.get("unfocused", [None])[0]
+            w = float(query.get("width", [120.0])[0])
+            h = float(query.get("height", [40.0])[0])
+            th = float(query.get("thickness", [2.0])[0])
+            res = evaluate_focus_appearance(FocusAppearanceSpec(w, h, f_col, b_col, unfocused_color=unfoc, indicator_thickness=th))
+            self._send_json(res.to_dict())
+            return
+
+        if path == "/api/target":
+            from .focus_and_target_evaluator import TargetSizeSpec, evaluate_target_size
+            w = float(query.get("width", [24.0])[0])
+            h = float(query.get("height", [24.0])[0])
+            res = evaluate_target_size(TargetSizeSpec(w, h))
+            self._send_json(res.to_dict())
+            return
+
+        if path == "/api/scrim":
+            from .scrim_and_overlay_solver import solve_scrim
+            txt = query.get("text", ["#ffffff"])[0]
+            ratio = float(query.get("ratio", query.get("target_ratio", [4.5]))[0])
+            scrim_c = query.get("scrim_color", [None])[0]
+            res = solve_scrim(txt, target_contrast=ratio, scrim_base_color=scrim_c)
+            self._send_json(res.to_dict())
+            return
+
         # ---------------------------------------------------------------------
         # Static Assets & Studio UI
         # ---------------------------------------------------------------------
@@ -326,6 +355,45 @@ class StudioHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
         if path == "/api/palettes":
             self._handle_api_list_palettes()
+            return
+
+        if path == "/api/focus":
+            from .focus_and_target_evaluator import FocusAppearanceSpec, evaluate_focus_appearance
+            spec = FocusAppearanceSpec(
+                element_width=float(body.get("width") or body.get("element_width") or 120.0),
+                element_height=float(body.get("height") or body.get("element_height") or 40.0),
+                focus_color=body.get("focus_color") or body.get("focus") or "#1a73e8",
+                background_color=body.get("background_color") or body.get("background") or "#ffffff",
+                unfocused_color=body.get("unfocused_color") or body.get("unfocused"),
+                indicator_thickness=float(body.get("indicator_thickness") or body.get("thickness") or 2.0),
+                style=body.get("style", "outline"),
+                offset=float(body.get("offset", 0.0)),
+            )
+            res = evaluate_focus_appearance(spec)
+            self._send_json(res.to_dict())
+            return
+
+        if path == "/api/target":
+            from .focus_and_target_evaluator import TargetSizeSpec, evaluate_target_size
+            spec = TargetSizeSpec(
+                width_px=float(body.get("width_px") or body.get("width") or 24.0),
+                height_px=float(body.get("height_px") or body.get("height") or 24.0),
+                spacing_x_px=float(body.get("spacing_x_px") or body.get("spacing_x") or 0.0),
+                spacing_y_px=float(body.get("spacing_y_px") or body.get("spacing_y") or 0.0),
+                is_inline=bool(body.get("is_inline", False)),
+                is_essential=bool(body.get("is_essential", False)),
+            )
+            res = evaluate_target_size(spec)
+            self._send_json(res.to_dict())
+            return
+
+        if path == "/api/scrim":
+            from .scrim_and_overlay_solver import solve_scrim
+            txt = body.get("text_color") or body.get("text") or "#ffffff"
+            ratio = float(body.get("target_contrast") or body.get("target_ratio") or body.get("ratio") or 4.5)
+            scrim_base = body.get("scrim_base_color") or body.get("scrim_color")
+            res = solve_scrim(txt, target_contrast=ratio, scrim_base_color=scrim_base)
+            self._send_json(res.to_dict())
             return
 
         if path == "/api/diagnostics":

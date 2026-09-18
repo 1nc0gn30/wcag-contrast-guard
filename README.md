@@ -226,6 +226,31 @@ css = """
 """
 scan_res = scan_css_string(css)
 print(f"Found {scan_res.pairs_count} color pairs, {scan_res.failing_pairs_count} failing.")
+
+# 6. WCAG 2.2 Focus Appearance Evaluator (SC 2.4.11 / SC 2.4.13)
+from wcag_contrast_guard import evaluate_focus_appearance, evaluate_target_size, solve_scrim
+focus_eval = evaluate_focus_appearance(
+    focus_indicator_color="#005fcc",
+    unfocused_color="#ffffff",
+    background_color="#ffffff",
+    component_width=120,
+    component_height=40,
+    indicator_thickness=2
+)
+print(f"Focus Passing AA: {focus_eval.passes_aa}, Indicator Area: {focus_eval.indicator_area_px}px")
+
+# 7. WCAG 2.2 Target Size Evaluator (SC 2.5.8 / SC 2.5.5)
+target_eval = evaluate_target_size(width=28, height=28)
+print(f"Target Size Passing AA (24x24): {target_eval.passes_aa}")
+
+# 8. Text Scrim / Backdrop Overlay Solver
+scrim_solution = solve_scrim(
+    text_color="#ffffff",
+    backdrop_color="#ffffff",
+    scrim_color="#000000",
+    target_ratio=4.5
+)
+print(f"Minimum Scrim Opacity: {scrim_solution.scrim_alpha:.2f} -> {scrim_solution.css_rgba}")
 ```
 
 ---
@@ -260,6 +285,9 @@ Add the following to your `claude_desktop_config.json` or `.cursor/mcp.json`:
 | `wcag_audit_palette` | Audit a complete color palette matrix |
 | `wcag_scan_css` | Extract and audit color pairs from CSS source code |
 | `wcag_list_palettes` | List built-in design system palettes |
+| `wcag_evaluate_focus_appearance` | Audit WCAG 2.2 SC 2.4.11 / 2.4.13 focus indicator contrast and minimum area |
+| `wcag_evaluate_target_size` | Evaluate WCAG 2.2 SC 2.5.8 / 2.5.5 pointer touch target bounding box & spacing circle |
+| `wcag_solve_scrim_overlay` | Calculate minimum opacity scrim overlay or audit text over image contrast |
 | `wcag_diagnostics` | Check system environment and supported standards |
 
 ---

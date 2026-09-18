@@ -27,7 +27,11 @@ keywords = [
     "mcp",
     "model-context-protocol",
     "design-system",
-    "material-design"
+    "material-design",
+    "focus-appearance",
+    "target-size",
+    "scrim-solver",
+    "alpha-compositing"
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",

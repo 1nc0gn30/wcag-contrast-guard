@@ -98,6 +98,25 @@ from wcag_contrast_guard.harmonic_palette import (
     generate_harmonic_palette,
 )
 
+# WCAG 2.2 Focus Appearance & Target Size Evaluator
+from wcag_contrast_guard.focus_and_target_evaluator import (
+    FocusAppearanceResult,
+    FocusAppearanceSpec,
+    TargetSizeResult,
+    TargetSizeSpec,
+    evaluate_focus_appearance,
+    evaluate_target_size,
+)
+
+# Text-Over-Image Scrim & Overlay Solver
+from wcag_contrast_guard.scrim_and_overlay_solver import (
+    ImageTextAuditResult,
+    ScrimSolution,
+    audit_text_over_image,
+    composite_color_stack,
+    solve_scrim,
+)
+
 # Catalog & Palettes
 from wcag_contrast_guard.catalog import (
     PALETTES,
@@ -278,6 +297,19 @@ __all__ = [
     "delta_e_ciede2000",
     "delta_e_76",
     "blend_alpha",
+    # WCAG 2.2 Focus Appearance & Target Size
+    "FocusAppearanceSpec",
+    "FocusAppearanceResult",
+    "TargetSizeSpec",
+    "TargetSizeResult",
+    "evaluate_focus_appearance",
+    "evaluate_target_size",
+    # Scrim & Overlay Solver
+    "ScrimSolution",
+    "ImageTextAuditResult",
+    "solve_scrim",
+    "audit_text_over_image",
+    "composite_color_stack",
     # Palettes & Catalog
     "PALETTES",
     "list_palettes",

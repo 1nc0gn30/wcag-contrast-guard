@@ -322,8 +322,101 @@ def cmd_test(args: argparse.Namespace, color_ok: bool) -> int:
     from .harmonic_palette import generate_harmonic_palette
     pal = generate_harmonic_palette("#1a73e8", harmony_type="analogous", mode="light")
     assert len(pal.colors) >= 5, "Harmonic palette must have >= 5 colors"
-    assert pal.guaranteed_compliant is True, "Harmonic palette must be compliant"
+    from .focus_and_target_evaluator import (
+        FocusAppearanceSpec,
+        TargetSizeSpec,
+        evaluate_focus_appearance,
+        evaluate_target_size,
+    )
+    foc = evaluate_focus_appearance(FocusAppearanceSpec(120, 40, "#1a73e8", "#ffffff"))
+    assert foc.passes_aa is True, "Focus check should pass AA"
+    tgt = evaluate_target_size(TargetSizeSpec(44, 44))
+    assert tgt.passes_aaa is True, "44x44 target should pass AAA"
+    from .scrim_and_overlay_solver import solve_scrim
+    scrim = solve_scrim("#ffffff", target_contrast=4.5)
+    assert scrim.is_compliant is True, "Scrim solver must produce compliant contrast"
     print(colorize("✔ All internal checks passed!", AnsiColor.BRIGHT_GREEN, color_ok))
+    return 0
+
+
+def cmd_focus(args: argparse.Namespace, color_ok: bool) -> int:
+    from .focus_and_target_evaluator import FocusAppearanceSpec, evaluate_focus_appearance
+    spec = FocusAppearanceSpec(
+        element_width=args.width,
+        element_height=args.height,
+        focus_color=args.focus,
+        background_color=args.background,
+        unfocused_color=args.unfocused,
+        indicator_thickness=args.thickness,
+        style=args.style,
+        offset=args.offset,
+    )
+    res = evaluate_focus_appearance(spec)
+    if args.json:
+        print(json.dumps(res.to_dict(), indent=2))
+        return 0
+
+    print(f"\n● WCAG 2.2 Focus Appearance Evaluation (SC 2.4.11 / 2.4.13)")
+    status_aa = colorize("PASS (Level AA)", AnsiColor.BRIGHT_GREEN, color_ok) if res.passes_aa else colorize("FAIL", AnsiColor.RED, color_ok)
+    status_aaa = colorize("PASS (Level AAA)", AnsiColor.BRIGHT_GREEN, color_ok) if res.passes_aaa else colorize("FAIL", AnsiColor.YELLOW, color_ok)
+    print(f"  Level AA:            {status_aa}")
+    print(f"  Level AAA:           {status_aaa}")
+    print(f"  Contrast vs BG:      {res.contrast_against_bg:.2f}:1 (>= 3.0:1 AA)")
+    print(f"  Contrast vs Unfoc:   {res.contrast_against_unfocused:.2f}:1")
+    print(f"  Indicator Area:      {res.indicator_area_px2:.1f}px² (min AA: {res.min_required_area_aa_px2:.1f}px²)")
+    print(f"  Thickness & Style:   {res.thickness_px}px {res.style}\n")
+    if res.recommendations:
+        for r in res.recommendations:
+            print(f"  💡 {r}")
+        print()
+    return 0 if res.passes_aa else 1
+
+
+def cmd_target(args: argparse.Namespace, color_ok: bool) -> int:
+    from .focus_and_target_evaluator import TargetSizeSpec, evaluate_target_size
+    spec = TargetSizeSpec(
+        width_px=args.width,
+        height_px=args.height,
+        spacing_x_px=args.spacing_x,
+        spacing_y_px=args.spacing_y,
+        is_inline=args.inline,
+        is_essential=args.essential,
+    )
+    res = evaluate_target_size(spec)
+    if args.json:
+        print(json.dumps(res.to_dict(), indent=2))
+        return 0
+
+    print(f"\n● WCAG 2.2 Pointer Target Size Evaluation (SC 2.5.8 / 2.5.5)")
+    status_aa = colorize("PASS (Level AA)", AnsiColor.BRIGHT_GREEN, color_ok) if res.passes_aa else colorize("FAIL", AnsiColor.RED, color_ok)
+    status_aaa = colorize("PASS (Level AAA)", AnsiColor.BRIGHT_GREEN, color_ok) if res.passes_aaa else colorize("FAIL", AnsiColor.YELLOW, color_ok)
+    print(f"  Level AA (24x24px):  {status_aa}")
+    print(f"  Level AAA (44x44px): {status_aaa}")
+    print(f"  Target Dimensions:   {res.width_px:.0f} x {res.height_px:.0f} CSS px")
+    print(f"  Target Area:         {res.area_px2:.1f} px²\n")
+    if res.recommendations:
+        for r in res.recommendations:
+            print(f"  💡 {r}")
+        print()
+    return 0 if res.passes_aa else 1
+
+
+def cmd_scrim(args: argparse.Namespace, color_ok: bool) -> int:
+    from .scrim_and_overlay_solver import solve_scrim
+    res = solve_scrim(args.text, target_contrast=args.target_ratio, scrim_base_color=args.scrim_color)
+    if args.json:
+        print(json.dumps(res.to_dict(), indent=2))
+        return 0
+
+    print(f"\n● Text-Over-Image Scrim & Overlay Solver")
+    print(f"  Text Color:          {res.text_color}")
+    print(f"  Target Contrast:     {res.target_contrast:.1f}:1")
+    print(f"  Optimal Scrim Color: {colorize(res.effective_scrim_rgba, AnsiColor.BRIGHT_CYAN, color_ok)}")
+    print(f"  Minimum Opacity:     {res.min_opacity * 100:.0f}% (alpha: {res.min_opacity:.2f})")
+    print(f"  Guaranteed Contrast: {res.worst_case_contrast_after:.2f}:1")
+    print(f"\nCSS Recommendations:")
+    print(f"  {res.css_solid}")
+    print(f"  {res.css_gradient}\n")
     return 0
 
 
@@ -400,11 +493,40 @@ def build_parser() -> argparse.ArgumentParser:
     # 9. mcp
     subparsers.add_parser("mcp", parents=[parent_parser], help="Run Model Context Protocol stdio server")
 
-    # 10. diagnostics / doctor
+    # 10. focus
+    p_foc = subparsers.add_parser("focus", parents=[parent_parser], help="Evaluate WCAG 2.2 focus appearance contrast & perimeter area")
+    p_foc.add_argument("--focus", default="#1a73e8", help="Focus indicator color (default: #1a73e8)")
+    p_foc.add_argument("--background", default="#ffffff", help="Adjacent background color (default: #ffffff)")
+    p_foc.add_argument("--unfocused", help="Optional resting unfocused color")
+    p_foc.add_argument("--width", type=float, default=120.0, help="Element width in CSS px (default: 120)")
+    p_foc.add_argument("--height", type=float, default=40.0, help="Element height in CSS px (default: 40)")
+    p_foc.add_argument("--thickness", type=float, default=2.0, help="Indicator outline thickness in CSS px (default: 2)")
+    p_foc.add_argument("--style", default="outline", choices=["outline", "box-shadow", "border", "background-fill"], help="Focus style")
+    p_foc.add_argument("--offset", type=float, default=0.0, help="Outline offset in CSS px")
+    p_foc.add_argument("--json", action="store_true", help="Output JSON format")
+
+    # 11. target
+    p_tgt = subparsers.add_parser("target", parents=[parent_parser], help="Evaluate WCAG 2.2 pointer target size & spacing")
+    p_tgt.add_argument("--width", type=float, default=24.0, help="Target bounding box width in CSS px (default: 24)")
+    p_tgt.add_argument("--height", type=float, default=24.0, help="Target bounding box height in CSS px (default: 24)")
+    p_tgt.add_argument("--spacing-x", type=float, default=0.0, help="Horizontal edge spacing in CSS px")
+    p_tgt.add_argument("--spacing-y", type=float, default=0.0, help="Vertical edge spacing in CSS px")
+    p_tgt.add_argument("--inline", action="store_true", help="Mark target as inline within text sentence")
+    p_tgt.add_argument("--essential", action="store_true", help="Mark target as having essential presentation")
+    p_tgt.add_argument("--json", action="store_true", help="Output JSON format")
+
+    # 12. scrim
+    p_scrim = subparsers.add_parser("scrim", parents=[parent_parser], help="Solve minimum scrim opacity for text over variable images/backdrops")
+    p_scrim.add_argument("text", nargs="?", default="#ffffff", help="Foreground text color (default: #ffffff)")
+    p_scrim.add_argument("--target-ratio", type=float, default=4.5, help="Target WCAG contrast ratio (default: 4.5)")
+    p_scrim.add_argument("--scrim-color", help="Optional scrim tint color (#000000, #ffffff, or custom)")
+    p_scrim.add_argument("--json", action="store_true", help="Output JSON format")
+
+    # 13. diagnostics / doctor
     p_diag = subparsers.add_parser("diagnostics", parents=[parent_parser], help="System environment telemetry")
     p_diag.add_argument("--json", action="store_true", help="Output JSON format")
 
-    # 11. test
+    # 14. test
     subparsers.add_parser("test", parents=[parent_parser], help="Run internal self-verification suite")
 
     return parser
@@ -443,6 +565,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return cmd_serve(args, color_ok)
     elif subcmd == "mcp":
         return cmd_mcp(args, color_ok)
+    elif subcmd == "focus":
+        return cmd_focus(args, color_ok)
+    elif subcmd == "target":
+        return cmd_target(args, color_ok)
+    elif subcmd == "scrim":
+        return cmd_scrim(args, color_ok)
     elif subcmd in ("diagnostics", "doctor"):
         return cmd_diagnostics(args, color_ok)
     elif subcmd == "test":
